@@ -1,5 +1,5 @@
 <template >
-    <div>
+    <div class="PokeTypes">
         <div class="Container">
             <TypeCard :PokeType="item" v-for="item in data" :key="item.name" />
         </div>
@@ -22,6 +22,7 @@ export default {
 }
 </script>
 <style scoped>
+
 .Container{
     height:50vh;
     width:50%;

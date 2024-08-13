@@ -1,17 +1,17 @@
 <template>
-  <PokeTypes />
+  <!-- <PokeTypes /> -->
   <PokemonCard />
 </template>
 
 <script>
-import PokeTypes from './components/PokeTypes.vue';
+// import PokeTypes from './components/PokeTypes.vue';
 import PokemonCard from './components/PokemonCard.vue';
 
 
 export default {
   name: 'App',
   components: {
-    PokeTypes,
+    // PokeTypes,
     PokemonCard
   }
 }
