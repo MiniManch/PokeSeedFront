@@ -1,0 +1,87 @@
+[
+  {
+    "name": "fairy",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479675/fairy_ua5kps.svg",
+    "color": "#EE99AC"
+  },
+  {
+    "name": "rock",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479674/rock_xtaats.svg",
+    "color": "#B8A038"
+  },
+  {
+    "name": "steel",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479674/steel_phsjdt.svg",
+    "color": "#B8B8D0"
+  },
+  {
+    "name": "water",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479674/water_h4wx5k.svg",
+    "color": "#6890F0"
+  },
+  {
+    "name": "ghost",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479674/ghost_upabfk.svg",
+    "color": "#705898"
+  },
+  {
+    "name": "psychic",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479674/psychic_z6jcnp.svg",
+    "color": "#F85888"
+  },
+  {
+    "name": "poison",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479673/poison_ijjzd8.svg",
+    "color": "#A040A0"
+  },
+  {
+    "name": "flying",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479673/flying_mmi2vy.svg",
+    "color": "#A890F0"
+  },
+  {
+    "name": "fire",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479672/fire_cudpo7.svg",
+    "color": "#F08030"
+  },
+  {
+    "name": "normal",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479672/normal_jiz8lc.svg",
+    "color": "#A8A878"
+  },
+  {
+    "name": "grass",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479671/grass_ybi5lg.svg",
+    "color": "#78C850"
+  },
+  {
+    "name": "ice",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479672/ice_cvwb4h.svg",
+    "color": "#98D8D8"
+  },
+  {
+    "name": "fighting",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479672/fighting_gwwo3k.svg",
+    "color": "#C03028"
+  },
+  {
+    "name": "electric",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479671/electric_l3lryo.svg",
+    "color": "#F8D030"
+  },
+  {
+    "name": "dark",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479671/dark_lqjfbf.svg",
+    "color": "#705848"
+  },
+  {
+    "name": "ground",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479671/ground_ju44es.svg",
+    "color": "#E0C068"
+  },
+  {
+    "name": "bug",
+    "image": "https://res.cloudinary.com/dt0q9nz4i/image/upload/v1723479671/bug_ob5v7e.svg",
+    "color": "#A8B820"
+  }
+]
