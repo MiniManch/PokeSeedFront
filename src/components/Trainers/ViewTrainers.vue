@@ -27,12 +27,14 @@ export default {
         display: flex;
         justify-content: center;
         min-height:100%;
-        min-width: 100%;
+        min-width: 80%;
+        margin: 5vh;
     }
     .container{
         display: flex;
         justify-content: flex-start;
-        width:100%;
-        flex-wrap: wrap
+        flex-wrap:wrap;
+        width:fit-content;
+        gap: 2vh
     }
 </style>

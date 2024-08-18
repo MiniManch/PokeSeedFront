@@ -63,6 +63,9 @@ export default {
 }
 </script>
 <style scoped>
+.TrainerCard{
+    width:30vw;
+}
     .container{
         width:100%;
         display: flex;
@@ -83,6 +86,6 @@ export default {
         width: 40px;
     }
     .image>img{
-        width:200px;
+        width:10vw;
     }
 </style>
