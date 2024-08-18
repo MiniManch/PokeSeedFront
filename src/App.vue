@@ -1,17 +1,17 @@
 <template>
-  <!-- <PokeTypes /> -->
-  <PokemonCard v-if="selectedPokemon" :pokemon="selectedPokemon" />
+  <!-- <HomeComp /> -->
+   <ViewTrainers :data="onlyNpcTrainers"/>
 </template>
 
 <script>
-// import PokeTypes from './components/PokeTypes.vue';
-import PokemonCard from './components/PokemonCard.vue';
+// import HomeComp from './components/HomeComp.vue'
+import ViewTrainers from './components/Trainers/ViewTrainers.vue';
 
 export default {
   name: 'App',
   components: {
-    // PokeTypes,
-    PokemonCard
+    // HomeComp,
+    ViewTrainers
   },
   data() {
     return {
@@ -21,11 +21,15 @@ export default {
       error: null
     };
   },
+  computed:{
+    onlyNpcTrainers(){
+      return this.allTrainers.filter(trainer => trainer.backSprite == '');
+    }
+  },
   methods: {
-    // Fetch all Pokémon types
     async fetchAllTypes() {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/types`);
+        const response = await fetch(`/api/types`);
         if (!response.ok) {
           throw new Error('Failed to fetch Pokémon types');
         }
@@ -36,24 +40,23 @@ export default {
       }
     },
 
-    // Fetch all trainers
     async fetchAllTrainers() {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/trainers`);
+        const response = await fetch(`/api/trainers`);
         if (!response.ok) {
           throw new Error('Failed to fetch trainers');
         }
         this.allTrainers = await response.json();
+        // console.log(this.allTrainers)
       } catch (error) {
         this.error = error.message;
         console.error('Error fetching trainers:', error);
       }
     },
 
-    // Fetch a specific Pokémon by name
     async fetchPokemonByName(name) {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/pokemon/${name}`);
+        const response = await fetch(`/api/pokemon/${name}`);
         if (!response.ok) {
           throw new Error('Failed to fetch Pokémon');
         }
@@ -97,6 +100,9 @@ export default {
 html, body{
   min-height:100vh;
   min-width:100vw;
+  padding: 0;
+  margin: 0;
   overflow-x: hidden;
+  background-color:#FAF9F6;
 }
 </style>
