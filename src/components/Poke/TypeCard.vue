@@ -38,7 +38,7 @@ export default {
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 20%;
+    width: 10vw;
     height: 50%;
     align-items: center;
     justify-content: center;
@@ -61,7 +61,7 @@ export default {
     bottom:1vh;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
-    font-family: Mangabey;
+    font-family: HomeVideo;
     font-weight: 100;
     letter-spacing: 0.2rem;
    
@@ -75,7 +75,6 @@ h1{
     margin-bottom: 0;
 }
 
-/* Gradients for each type */
 .fairy {
     background: linear-gradient(135deg, #EE99AC, #FFCCD4);
 }

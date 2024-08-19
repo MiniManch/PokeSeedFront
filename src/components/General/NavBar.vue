@@ -1,20 +1,29 @@
 <template>
     <div class="NavBar"> 
-        <div class="container">
-            <div class="pokemon tab" @mouseover="mouseOn('pokeball')" @mouseleave="mouseOut('pokeball')">
+            <div class="pokemon tab"
+                @mouseover="mouseOn('pokeball')"
+                @mouseleave="mouseOut('pokeball')"
+                @click="directToLink('/game/selectPokemon')"
+            >
                 <img :src="pokeballUrl" class="icon">
                 <p>Play</p>
             </div>
-            <div class="pokedex tab"  @mouseenter="mouseOn('pokedex')" @mouseleave="mouseOut('pokedex')">
+            <div class="pokedex tab"
+                @mouseenter="mouseOn('pokedex')"
+                @mouseleave="mouseOut('pokedex')"
+            >
                 <img :src="pokedexUrl" class="icon"> 
                 <p>Pokemon</p>
             </div>
-            <div class="trainers tab" @mouseenter="mouseOn('trainers')" @mouseleave="mouseOut('trainer')">
+            <div class="trainers tab"
+                @mouseenter="mouseOn('trainers')"
+                @mouseleave="mouseOut('trainer')"
+                @click="directToLink('/trainers')"
+            >
                 <img :src="trainersUrl" class="icon">
                 <p>Trainers</p>
             </div>
             <div class="user"></div>
-        </div>
     </div>
 </template>
 <script>
@@ -48,6 +57,9 @@ export default {
             if(tabName == 'trainer'){
                 this.trainersUrl = "/images/trainer/trainer-black-50.png";
             }
+        },
+        directToLink(link){
+            this.$router.push(link);
         }
     }
 }

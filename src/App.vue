@@ -1,23 +1,20 @@
 <template>
-  <!-- <HomeComp /> -->
-   <ViewTrainers :data="onlyNpcTrainers"/>
+  <NavBar />
+  <router-view></router-view> <!-- This should display your home page component -->
 </template>
 
 <script>
-// import HomeComp from './components/HomeComp.vue'
-import ViewTrainers from './components/Trainers/ViewTrainers.vue';
+import NavBar from './components/General/NavBar.vue'
 
 export default {
   name: 'App',
   components: {
-    // HomeComp,
-    ViewTrainers
+    NavBar,
   },
   data() {
     return {
       selectedPokemon: null,
       allTypes: [],
-      allTrainers: [],
       error: null
     };
   },
@@ -40,20 +37,6 @@ export default {
       }
     },
 
-    async fetchAllTrainers() {
-      try {
-        const response = await fetch(`/api/trainers`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch trainers');
-        }
-        this.allTrainers = await response.json();
-        // console.log(this.allTrainers)
-      } catch (error) {
-        this.error = error.message;
-        console.error('Error fetching trainers:', error);
-      }
-    },
-
     async fetchPokemonByName(name) {
       try {
         const response = await fetch(`/api/pokemon/${name}`);
@@ -68,9 +51,7 @@ export default {
     }
   },
   mounted() {
-    // Fetch initial data
     this.fetchAllTypes();
-    this.fetchAllTrainers();
   }
 }
 </script>

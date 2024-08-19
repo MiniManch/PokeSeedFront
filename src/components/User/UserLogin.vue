@@ -60,10 +60,9 @@
           localStorage.setItem('PokeSeed_token', response.data.token);
           this.successMessage = 'Logged In Successfully.',
           this.messageType = 'Success!';
-        // Need to setup router and redirect to dashboard or smth.
-        //   setTimeout(() => {
-        //     this.$router.push('')
-        //   },1500)
+          setTimeout(() => {
+            this.$router.push('/')
+          },1500)
         } catch (error) {
           this.errorMessage = error.response.data.message || 'Error logging in';
           this.messageType = 'error';
@@ -87,7 +86,7 @@
   .LogInContainer{
       height:60vh;
       width:100vw;
-  
+      padding-top: 15vh;
       display: flex;
       align-items: center;
       justify-content: center;

@@ -1,17 +1,22 @@
 <template >
     <div>
-        <NavBar />
+        homepage
     </div>
 </template>
-<script>
-import NavBar from './General/NavBar.vue';
 
+<script>
 export default {
-    components:{
-        NavBar
+    name: 'HomePage',
+    mounted(){
+        console.log('homepage mounted')
     }
 }
 </script>
-<style lang="">
-    
+
+<style scoped>
+    div{
+        padding-top:10vh;
+        width:100vw;
+        height:100vh;
+    }
 </style>
