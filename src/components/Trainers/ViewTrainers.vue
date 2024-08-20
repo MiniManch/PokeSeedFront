@@ -27,8 +27,8 @@ export default {
                 if (!response.ok) {
                 throw new Error('Failed to fetch trainers');
                 }
-                this.data = await response.json();
-                // console.log(this.allTrainers)
+                const trainers = await response.json();
+                this.data = trainers.filter((item)=> item.backSprite == "")
             } catch (error) {
                 this.error = error.message;
                 console.error('Error fetching trainers:', error);
