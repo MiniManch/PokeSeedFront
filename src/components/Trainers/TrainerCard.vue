@@ -19,6 +19,9 @@
                     <div class="losses">
                         <p>Losses:{{trainer.wins}}</p>
                     </div>
+                    <div class="pokemon">
+                        <p v-for="item in trainer.team" :key="item.name"> {{item.name}}</p>
+                    </div>
                 </div>
             </div>
             
@@ -55,7 +58,7 @@ export default {
         }   
     },
     mounted(){
-        console.log(this.trainerData)
+        console.log(this.trainerData.team[0])
         this.trainer.wins = Number(this.trainer.wins != '' ? this.trainer.wins : 0);
         this.trainer.champion = Number(this.trainer.champion != '' ? this.trainer.champion : 0);
         this.trainer.losses = Number(this.trainer.losses != '' ? this.trainer.losses : 0);
