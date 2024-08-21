@@ -1,7 +1,7 @@
 <template >
     <div class="SelectPokemon">
         <div class="pokeTypes">
-            <PokeTypes />
+            <PokeTypes :choose="true"/>
         </div>
     </div>
 </template>

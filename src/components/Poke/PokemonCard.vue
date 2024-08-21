@@ -2,27 +2,52 @@
   <div class="PokeCard">
     <div v-if="pokemon" :class="['Container',pokemon.type]">
       <div class="typeAndSuch">
-        <img src="#" :alt="pokemon.type">
-        <p>some text</p>
+        <img :src="pokeTypeIcon" :alt="pokemon.type">
+        <p>{{pokemon.type}}</p>
       </div>
       <div class="ImageAndName">
         <h2>{{ pokemon.name }}</h2>
         <img :src="pokemon.frontSprite" alt="Front Sprite">
       </div>
+      <button @click="openProfile(pokemon.name)">View Stats</button>
     </div>
   </div>
 </template>
-
+<!-- add button that if we pass a prop we will have a button with afunc that adds to team -->
 <script>
+import typeIcons from "../../assets/data/typeIcons.json";
 export default {
   props: {
       pokemon: {
           type: Object,
           required: true
       },
+      choose:{
+          type: Boolean,
+          required: false,
+      }
   },
-  mounted(){
-    console.log(this.pokemon)
+  data(){
+    return {
+      typeIcons:typeIcons,
+      pokeTypeIcon:null
+    }
+  },
+  methods:{
+    getIcon(item){
+      for(const iconObject of this.typeIcons){
+        if(iconObject.name == item.type){
+          this.pokeTypeIcon = iconObject.image
+        }
+      }
+    },
+    openProfile(poke){
+      this.$router.push(`/pokemon/profile/${poke}`,this.choose)
+    }
+  },
+  created(){
+    this.getIcon(this.pokemon);
+    console.log(this.pokemon.type)
   }
 }
 </script>
@@ -63,6 +88,7 @@ export default {
 }
 
 .typeAndSuch > p {
+  display: flex;
   text-orientation: upright;
   writing-mode: vertical-rl;
   margin: 0;

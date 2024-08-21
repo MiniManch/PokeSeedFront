@@ -59,6 +59,12 @@ export default {
             }
         },
         directToLink(link){
+            if(link == '/trainers'){
+                this.$router.push({ 
+                    name: 'trainers', 
+                    query: { choose: false } 
+                });
+            }
             this.$router.push(link);
         }
     }

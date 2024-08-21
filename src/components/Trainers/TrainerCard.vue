@@ -55,7 +55,7 @@ export default {
         }   
     },
     mounted(){
-        console.log(this.trainerData)
+        console.log(this.trainerData.team[0])
         this.trainer.wins = Number(this.trainer.wins != '' ? this.trainer.wins : 0);
         this.trainer.champion = Number(this.trainer.champion != '' ? this.trainer.champion : 0);
         this.trainer.losses = Number(this.trainer.losses != '' ? this.trainer.losses : 0);
@@ -64,25 +64,35 @@ export default {
 </script>
 <style scoped>
     .container{
-        width:100%;
+        min-width:fit-content;
         display: flex;
+        height:40vh;
+        padding: 0;
+        padding-top: 2vh;
+        padding-left: 2vh;
     }
 
     h2{
-        margin-bottom: 5vh;
-        font-size: 2em;
+        font-size: 3vh;
     }
-
+    h3{
+        font-size: 2vh;
+    }
+    p{
+        font-size:1.5vh;
+    }
     .rating,.champion{
         display: flex;
         align-items: center;
         gap: 1vw;
     }
-
+    .rating{
+        margin-bottom: 3vh;
+    }
     div>img{
         width: 40px;
     }
     .image>img{
-        width:200px;
+        width:8vw;
     }
 </style>

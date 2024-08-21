@@ -4,6 +4,7 @@
                 <PokemonCard
                 class="PokemonCard"
                 v-for="item in Pokemon"
+                :choose="choose"
                 :pokemon="item"
                 :key="item.name"
             />
@@ -26,6 +27,12 @@ import PokemonCard from './PokemonCard.vue';
 import typeData from '@/assets/data/typeIcons.json';
 
 export default {
+    props:{
+        choose:{
+            type:Boolean,
+            required:false,
+        }
+    },
     data(){
         return{
             data : typeData,
