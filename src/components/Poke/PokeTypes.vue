@@ -72,14 +72,7 @@ export default {
     width:50vw;
     display: flex;
     flex-direction: row;
-    justify-content: center;
     flex-wrap: wrap;
-    gap: 2vw;
-    margin: 5vh;
 }
 
-.pokeTypeCard:last-child{
-    justify-self: flex-start;
-}
-    
 </style>

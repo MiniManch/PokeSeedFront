@@ -25,7 +25,7 @@
             <div class="image">
                 <img :src="trainer.frontSprite" alt="">
             </div>
-
+           
         </div>
     </div>
 </template>
@@ -55,7 +55,6 @@ export default {
         }   
     },
     mounted(){
-        console.log(this.trainerData.team[0])
         this.trainer.wins = Number(this.trainer.wins != '' ? this.trainer.wins : 0);
         this.trainer.champion = Number(this.trainer.champion != '' ? this.trainer.champion : 0);
         this.trainer.losses = Number(this.trainer.losses != '' ? this.trainer.losses : 0);

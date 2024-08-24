@@ -2,7 +2,12 @@
     <div class="ViewTrainers">
         <div class="container">
             <div class="row" v-for="(trainerRow, index) in chunkedData" :key="index">
-                <TrainerCard v-for="trainer in trainerRow" :key="trainer.id" :trainerData="trainer" />
+                <TrainerCard
+                    v-for="trainer in trainerRow"
+                    :key="trainer._id"
+                    :trainerData="trainer"
+                    @select="onTrainerSelected"
+                />
             </div>
         </div>
     </div>
@@ -12,12 +17,6 @@
 import TrainerCard from './TrainerCard.vue';
 
 export default {
-    props:{
-        choose:{
-            type:Boolean,
-            required:false
-        }
-    },
     data() {
         return {
             data: [],
@@ -28,7 +27,6 @@ export default {
     },
     computed: {
         chunkedData() {
-            // Chunk data into arrays of 3
             const chunkSize = 3;
             const chunks = [];
             for (let i = 0; i < this.data.length; i += chunkSize) {
@@ -38,7 +36,6 @@ export default {
         }
     },
     mounted() {
-        // Fetch initial data
         this.fetchAllTrainers();
     },
     methods: {
@@ -49,34 +46,35 @@ export default {
                     throw new Error('Failed to fetch trainers');
                 }
                 const data = await response.json();
-                this.data = data.filter(item => item.backSprite == "");
+                this.data = data.filter(item => item.backSprite != "");
             } catch (error) {
                 this.error = error.message;
                 console.error('Error fetching trainers:', error);
             }
         },
+        onTrainerSelected(trainer) {
+            this.$emit('select', trainer);
+        }
     }
 }
 </script>
 
 <style scoped>
     .ViewTrainers {
-        display: flex;
-        justify-content: center;
         margin-top: 0;
         padding-top: 15vh;
+        width: 100%;
     }
     .container {
+        margin: 0 auto;
+        width: fit-content;
         display: flex;
-        flex-direction: column; /* Stack rows vertically */
-        align-items: center;
-        width: 85%;
-        gap: 2vh; /* Space between rows */
+        flex-direction: column;
+        gap: 2vh;
     }
     .row {
         display: flex;
-        justify-content: space-between; /* Align cards to the left in each row */
         width: 100%;
-        gap:1vw;
+        gap: 1vw;
     }
 </style>

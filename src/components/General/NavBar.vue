@@ -3,18 +3,21 @@
             <div class="pokemon tab"
                 @mouseover="mouseOn('pokeball')"
                 @mouseleave="mouseOut('pokeball')"
-                @click="directToLink('/game/selectPokemon')"
+                @click="directToLink('/game')"
             >
                 <img :src="pokeballUrl" class="icon">
                 <p>Play</p>
             </div>
+
             <div class="pokedex tab"
                 @mouseenter="mouseOn('pokedex')"
                 @mouseleave="mouseOut('pokedex')"
+                @click="directToLink('/pokedex')"
             >
                 <img :src="pokedexUrl" class="icon"> 
                 <p>Pokemon</p>
             </div>
+
             <div class="trainers tab"
                 @mouseenter="mouseOn('trainers')"
                 @mouseleave="mouseOut('trainer')"
@@ -23,6 +26,7 @@
                 <img :src="trainersUrl" class="icon">
                 <p>Trainers</p>
             </div>
+            
             <div class="user"></div>
     </div>
 </template>

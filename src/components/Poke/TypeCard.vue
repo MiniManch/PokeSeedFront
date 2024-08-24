@@ -45,6 +45,7 @@ export default {
     border-radius: 8px;
     color: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0.5vw;
 }
 
 .imageContainer {
@@ -64,7 +65,6 @@ export default {
     font-family: HomeVideo;
     font-weight: 100;
     letter-spacing: 0.2rem;
-   
 }
 
 .title.show {

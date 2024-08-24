@@ -58,6 +58,7 @@
             password: this.password,
           });
           localStorage.setItem('PokeSeed_token', response.data.token);
+          localStorage.setItem('PokeSeed_username', response.data.user.username);
           this.successMessage = 'Logged In Successfully.',
           this.messageType = 'Success!';
           setTimeout(() => {

@@ -1,6 +1,6 @@
 <template >
     <div class="SelectPokemon">
-        <div class="pokeTypes">
+        <div class="container">
             <PokeTypes :choose="true"/>
         </div>
     </div>
@@ -89,12 +89,12 @@ export default {
 .SelectPokemon{
     display: flex;
     justify-content: center;
+    align-items: center;
 }
-.pokeTypes {
-    width: fit-content;
-    height: 100vh;
+
+.container{
     display: flex;
-    justify-content: center;
-    align-items: center; /* Center vertically */
+    align-items: center;
+    min-height: 100vh;
 }
 </style>
