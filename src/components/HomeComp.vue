@@ -7,9 +7,6 @@
 <script>
 export default {
     name: 'HomePage',
-    mounted(){
-        console.log('homepage mounted')
-    }
 }
 </script>
 

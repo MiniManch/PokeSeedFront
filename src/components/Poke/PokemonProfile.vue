@@ -46,6 +46,8 @@
 
 <script>
 import typeIcons from "../../assets/data/typeIcons.json";
+import { fetchPokemonByName } from "@/utils/crud";
+
 export default {
   props: {
       choose:{
@@ -71,24 +73,11 @@ export default {
     choosePokemon(poke) {
       this.$emit('choosePokemon', poke);
     },
-    async fetchPokemonByName(name) {
-      try {
-        const response = await fetch(`/api/pokemon/${name}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch Pokémon');
-        }
-        this.pokemon = await response.json();
-        this.getIcon(this.pokemon); // Call getIcon after fetching the Pokémon data
-      } catch (error) {
-        this.error = error.message;
-        console.error('Error fetching Pokémon:', error);
-      }
-    }
   },
   mounted() {
     const path = window.location.href.split('/');
     const pokeName = path[path.length - 1];
-    this.fetchPokemonByName(pokeName);
+    fetchPokemonByName(pokeName,this);
   }
 }
 </script>

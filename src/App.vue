@@ -18,11 +18,6 @@ export default {
       error: null
     };
   },
-  computed:{
-    onlyNpcTrainers(){
-      return this.allTrainers.filter(trainer => trainer.backSprite == '');
-    }
-  },
   methods: {
     async fetchAllTypes() {
       try {

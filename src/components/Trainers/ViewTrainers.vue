@@ -10,6 +10,7 @@
 
 <script>
 import TrainerCard from './TrainerCard.vue';
+import { fetchAllTrainers } from '@/utils/crud';
 
 export default {
     props:{
@@ -38,24 +39,8 @@ export default {
         }
     },
     mounted() {
-        // Fetch initial data
-        this.fetchAllTrainers();
+        fetchAllTrainers(this);
     },
-    methods: {
-        async fetchAllTrainers() {
-            try {
-                const response = await fetch(`/api/trainers`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch trainers');
-                }
-                const data = await response.json();
-                this.data = data.filter(item => item.backSprite == "");
-            } catch (error) {
-                this.error = error.message;
-                console.error('Error fetching trainers:', error);
-            }
-        },
-    }
 }
 </script>
 

@@ -25,6 +25,7 @@
 import TypeCard from './TypeCard.vue';
 import PokemonCard from './PokemonCard.vue';
 import typeData from '@/assets/data/typeIcons.json';
+import {fetchPokemonByType} from '@/utils/crud';
 
 export default {
     props:{
@@ -43,21 +44,8 @@ export default {
     methods:{
         ShowTypePokemon(pokeType){
             this.selectedType = pokeType;
-            this.fetchPokemonByType();
+            fetchPokemonByType(this);
         },
-        async fetchPokemonByType() {
-            try {
-                const response = await fetch(`/api/pokemon/type/${this.selectedType}`);
-                if (!response.ok) {
-                throw new Error('Failed to fetch Pokémon');
-                }
-                this.Pokemon = await response.json();
-                console.log(this.Pokemon)
-            } catch (error) {
-                this.error = error.message;
-                console.error('Error fetching Pokémon:', error);
-            }
-        }
     },
     components:{
         TypeCard,
