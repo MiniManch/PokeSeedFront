@@ -31,17 +31,6 @@
 </template>
 <script>
 
-// {
-//       "name": "Cyrus",
-//       "team": [],
-//       "rating": "",
-//       "wins": "",
-//       "champion": "",
-//       "losses": "",
-//       "frontSprite": "https://res.cloudinary.com/dfvncr99h/image/upload/v1723573787/Poke/trainers/Cyrus_Front_tx4qqy.png",
-//       "backSprite": ""
-// },
-
 export default {
     props: {
         trainerData: {

@@ -10,7 +10,7 @@
 
 <script>
 import TrainerCard from './TrainerCard.vue';
-import { fetchAllTrainers } from '@/utils/crud';
+import { fetchAllOppTrainers } from '@/utils/crud';
 
 export default {
     props:{
@@ -39,7 +39,7 @@ export default {
         }
     },
     mounted() {
-        fetchAllTrainers(this);
+        fetchAllOppTrainers(this);
     },
 }
 </script>

@@ -18,36 +18,6 @@ export default {
       error: null
     };
   },
-  methods: {
-    async fetchAllTypes() {
-      try {
-        const response = await fetch(`/api/types`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch Pokémon types');
-        }
-        this.allTypes = await response.json();
-      } catch (error) {
-        this.error = error.message;
-        console.error('Error fetching Pokémon types:', error);
-      }
-    },
-
-    async fetchPokemonByName(name) {
-      try {
-        const response = await fetch(`/api/pokemon/${name}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch Pokémon');
-        }
-        this.selectedPokemon = await response.json();
-      } catch (error) {
-        this.error = error.message;
-        console.error('Error fetching Pokémon:', error);
-      }
-    }
-  },
-  mounted() {
-    this.fetchAllTypes();
-  }
 }
 </script>
 

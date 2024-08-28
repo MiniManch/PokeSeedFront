@@ -27,8 +27,8 @@ export async function getTrainerData(This) {
                 'Authorization': `Bearer ${token}`
             }
         });
-        console.log('inside Crud',response.data)
         This.trainerData = response.data; 
+        console.log(response.data)
     } catch (error) {
         This.message = error.response?.data?.message || 'Error fetching trainer data';
         This.trainerData = null; // Optionally set it to null on error
@@ -91,6 +91,20 @@ export async function fetchAllTypes(This) {
 }
 
 export async function fetchAllTrainers(This) {
+    try {
+        const response = await fetch(`/api/trainers`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch trainers');
+        }
+        const data = await response.json();
+        This.data = data;
+    } catch (error) {
+        This.error = error.message;
+        console.error('Error fetching trainers:', error);
+    }
+}
+
+export async function fetchAllOppTrainers(This) {
     try {
         const response = await fetch(`/api/trainers`);
         if (!response.ok) {
