@@ -1,6 +1,6 @@
 <template>
-  <div class="PokeCard">
-    <div v-if="pokemon" :class="['Container', pokemon.type]">
+  <div :class="['PokeCard', pokemon.type]" v-if="pokemon">
+    <div :class="['Container']">
       
       <div class="imageAndData">
         <div class="typeAndSuch">
@@ -42,44 +42,73 @@
 
     </div>
   </div>
+
+  <div class="selectPokemon" v-if="userData && userData.team">
+    <div v-for="poke in userData.team" :key="poke.name">
+      {{ poke }}
+    </div>
+  </div>  
 </template>
+
 
 <script>
 import typeIcons from "../../assets/data/typeIcons.json";
 import { fetchPokemonByName } from "@/utils/crud";
+import { getUserData } from "@/utils/auth";
 
 export default {
-  props: {
-      choose:{
-          type: Boolean,
-          required: false,
-      }
-  },
-  data(){
+  data() {
     return {
-      typeIcons:typeIcons,
-      pokeTypeIcon:null,
-      pokemon:null,
-    }
+      typeIcons: typeIcons,
+      pokeTypeIcon: null,
+      pokemon: null,
+      userData: null,
+      showButton: false,
+      replaceButton: false,
+      alreadyInTeam: false,
+      error:null,
+    };
   },
   methods: {
-    getIcon(item) {
-      for (const iconObject of this.typeIcons) {
-        if (iconObject.name === item.type) {
-          this.pokeTypeIcon = iconObject.image;
-        }
+    getIcon(type) {
+      const iconObject = this.typeIcons.find((icon) => icon.name === type);
+      if (iconObject) {
+        this.pokeTypeIcon = iconObject.image;
       }
     },
-    choosePokemon(poke) {
-      this.$emit('choosePokemon', poke);
+    forSelection() {
+      // Check if the user is logged in
+      if (this.userData) {
+        this.showButton = true;
+      }
+
+      // Check if the Pokémon is already in the user's team
+      if (this.userData.team.includes(this.pokemon.name)) {
+        this.alreadyInTeam = true;
+      } else if (this.userData.team.length === 4) {
+        // If the team is full, show the replace button
+        this.replaceButton = true;
+      }
     },
   },
-  mounted() {
-    const path = window.location.href.split('/');
-    const pokeName = path[path.length - 1];
-    fetchPokemonByName(pokeName,this);
+  async mounted() {
+    const pokeName = window.location.href.split('/').pop();
+
+    try {
+      const pokemonData = await fetchPokemonByName(pokeName);
+      this.pokemon = pokemonData;
+      this.getIcon(this.pokemon.type); // Call getIcon after setting pokemon
+
+      const userData = await getUserData(this); // Fetch user data
+      if (userData) {
+        this.forSelection(); // Handle selection logic
+      }
+    } catch (error) {
+      this.error = 'Error fetching data: ' + error.message;
+      console.error(this.error);
+    }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -89,33 +118,45 @@ export default {
 
 .PokeCard {
   min-height: fit-content;
-  width: 100vw;
+  width: 80vw;
+  height: fit-content;
   display: flex;
   justify-content: center;
-  padding-top: 15vh;
+  margin: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border: 2px solid;
+  border-radius: 15px;
 }
 
 .Container {
-  width: 40vw;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+ .statsSection {
+  width: 48%; /* Take up 48% of the width each with some space between them */
   display: flex;
   flex-direction: column;
-  border: 2px solid;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .imageAndData {
-  width:100%;
   display: flex;
-  margin-bottom: 20px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .typeAndSuch {
-  width: 15%;
   margin-top: 2vh;
   margin-left: 1vh;
-  gap: 10vh;
+  gap: 5vh;
+  width: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .typeAndSuch > img {
@@ -129,63 +170,55 @@ export default {
   margin: 0;
   letter-spacing: normal;
   font-size: 1.1em;
-  margin-right: 1vh;
-  font-size:2em;
+  font-size: 2em;
 }
 
 .ImageAndName {
-  width: 85%;
-  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size:4em;
+  font-size: 2em;
 }
 
 .ImageAndName > img {
-  width: 40%;
+  width: 60%;
 }
 
-.statsSection, .movesSection {
+.statsSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stats > div > p {
+  font-size: 1.2em;
+}
+
+h3 {
+  font-size: 2em;
+}
+
+.movesSection {
   margin-top: 20px;
 }
-.statsSection{
-  display: flex;
-  justify-content: space-between;
-  width:100%;
-}
 
-.statsList, .movesList {
+.movesList {
   list-style: none;
   padding: 0;
 }
 
-.statsList > li, .movesList > li {
+.movesList > li {
   padding: 5px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   font-size: 1.2em;
 }
 
-.stats{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.stats > div >p {
-  font-size: 1.2em;
-}
-.moveEffect{
+.moveEffect {
   margin: 0;
   margin-bottom: 1vh;
 }
-
-h3{
-  font-size: 2em;
-}
-
-
 
 .fairy {
   background: linear-gradient(135deg, #EE99AC, #FFCCD4);
@@ -255,3 +288,4 @@ h3{
   background: linear-gradient(135deg, #A8B820, #C6D030);
 }
 </style>
+

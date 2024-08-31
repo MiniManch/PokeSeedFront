@@ -17,9 +17,9 @@ export async function updateUserData(data,This) {
     }
 }
 
-export async function getTrainerData(This) {
+export async function getTrainerData(This,trainerName) {
     try {
-        const name = This.data.trainer;
+        const name = trainerName;
         const token = localStorage.getItem('PokeSeed_token'); 
 
         const response = await axios.get(`/api/trainers/${name}`, {
@@ -35,28 +35,27 @@ export async function getTrainerData(This) {
     }
 }
 
-export async function fetchPokemonByName(name,This) {
+export async function fetchPokemonByName(name) {
     try {
       const response = await fetch(`/api/pokemon/${name}`);
       if (!response.ok) {
         throw new Error('Failed to fetch Pokémon');
       }
-      This.pokemon = await response.json();
-      This.getIcon(This.pokemon); // Call getIcon after fetching the Pokémon data
+      return await response.json(); // Return the Pokémon data
     } catch (error) {
-      This.error = error.message;
       console.error('Error fetching Pokémon:', error);
+      throw error; // Rethrow the error to handle it in the component
     }
-}
+  }
+  
 
 export async function fetchPokemonByType(This) {
     try {
-        const response = await fetch(`/api/pokemon/type/${this.selectedType}`);
+        const response = await fetch(`/api/pokemon/type/${This.selectedType}`);
         if (!response.ok) {
         throw new Error('Failed to fetch Pokémon');
         }
         This.Pokemon = await response.json();
-        console.log(this.Pokemon)
     } catch (error) {
         This.error = error.message;
         console.error('Error fetching Pokémon:', error);

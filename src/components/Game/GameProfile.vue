@@ -2,32 +2,39 @@
     <div class="GameProfile" v-if="trainerData">
         <div class="container">
             <div class="trainer">
-                <div class="bgImage" :style="{ backgroundImage: `url(${data.bg})` }">
+                <div class="bgImage" :style="{ backgroundImage: `url(${userData.bg})` }">
                     <div class="profieImage" :style="{ backgroundImage: `url(${trainerData.profileImage})` }"></div>
                 </div>
             </div>
-            <div class="pokemon"></div>
+            <div class="pokemon">
+                <div class="poke" v-for="poke in userData.team" :key="poke.name">
+                    <img src="/Images/profileImages/pokeball/close.png" :alt="poke.name">
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import { getTrainerData } from '@/utils/crud';
+import { getUserData } from '@/utils/auth';
+// import {updateUserData} from '@/utils/crud';
 
 export default {
     data(){
         return{
             trainerData: null,
-        }
-    },
-    props:{
-        data:{
-            type: Object,
-            required: true,
+            userData: null,
         }
     },
     created(){
-        getTrainerData(this)
+        getUserData(this).then(isValid => {
+            if (!isValid) {
+                this.$router.push('/login');
+            }else{
+                getTrainerData(this,this.userData.trainer)
+            }
+        });
     }
 }
 </script>
@@ -48,13 +55,13 @@ export default {
     align-items: center;
 }
 .trainer{
-    width:50%;
-    height:50%;
+    width:70%;
+    height:70%;
 }
 .bgImage {
     position: relative;
     width: 100%;
-    height: 80%;
+    height: 100%;
     background-size: contain;
     background-position: top;
     background-repeat: no-repeat;

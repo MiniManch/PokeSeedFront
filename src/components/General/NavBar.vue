@@ -80,7 +80,7 @@ export default {
         width:100vw;
         position: fixed;
         display: flex;
-        justify-content: center;
+        margin-left: 20%;
     }
     .container{
         width: 30%;
@@ -100,6 +100,8 @@ export default {
         font-size: 0.8em;
         width: 6vw; 
         transition: all 0.5s;
+        padding-left: 4vw;
+        padding-right: 4vw;
     }
     .pokemon:hover{
         background-color: #ff0000;
