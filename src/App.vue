@@ -5,6 +5,7 @@
 
 <script>
 import NavBar from './components/General/NavBar.vue'
+import 'animate.css';
 
 export default {
   name: 'App',

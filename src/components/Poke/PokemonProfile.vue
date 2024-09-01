@@ -1,62 +1,97 @@
 <template>
-  <div :class="['PokeCard', pokemon.type]" v-if="pokemon">
-    <div :class="['Container']">
-      
-      <div class="imageAndData">
-        <div class="typeAndSuch">
-          <img :src="pokeTypeIcon" :alt="pokemon.type">
-          <p>{{ pokemon.type }}</p>
+  <div class="containerOfPokeCard">
+    <!-- Modal Component -->
+    <Modal
+      v-if="showModal"
+      :title="modalTitle"
+      :message="modalMessage"
+      :type="modalType"
+      @close="closeModal"
+    />
+    <YesOrNoModal 
+      v-if="showYNModal"
+      :title= "modalTitle"
+      :message="modalMessage"
+    />
+
+    <div :class="['PokeCard', pokemon.type]" v-if="pokemon">
+      <div :class="['Container']">
+        <!-- existing PokeCard content -->
+        <div class="imageAndData">
+          <div class="typeAndSuch">
+            <img :src="pokeTypeIcon" :alt="pokemon.type" />
+            <p>{{ pokemon.type }}</p>
+          </div>
+          <div class="ImageAndName">
+            <h2>{{ pokemon.name }}</h2>
+            <img :src="pokemon.frontSprite" alt="Front Sprite" />
+          </div>
         </div>
-        <div class="ImageAndName">
-          <h2>{{ pokemon.name }}</h2>
-          <img :src="pokemon.frontSprite" alt="Front Sprite">
+
+        <div class="statsSection">
+          <div class="stats">
+            <div class="statsTitle">
+              <h3>Stats</h3>
+            </div>
+            <div>
+              <p>STR: {{ pokemon.stats.str }}</p>
+              <p>HP: {{ pokemon.stats.hp }}</p>
+              <p>DEF: {{ pokemon.stats.def }}</p>
+              <p>SPEED: {{ pokemon.stats.speed }}</p>
+              <p>Sp.ATK: {{ pokemon.stats.spAtk }}</p>
+              <p>Sp.DEF: {{ pokemon.stats.spDef }}</p>
+            </div>
+          </div>
+
+          <div class="movesSection">
+            <h3>Moves</h3>
+            <ul class="movesList">
+              <li v-for="move in pokemon.moves" :key="move._id">
+                <strong>{{ move.name }}</strong> ({{ move.type }}):
+                DMG: {{ move.dmg }}, ACC: {{ move.acc }}, SP: {{ move.sp }}
+                <p v-if="move.effect" class="moveEffect">
+                  <br />
+                  <em>Effect:</em> {{ move.effect }} ({{ move.effect_acc }}%
+                  acc) ({{ move.effect_percent }} eff%)
+                </p>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
+      <ul class="framed buttons selectPokemon" v-if="userData && showButton ">
+        <li v-if="replaceButton && !showPokeToRepalce">
+          <button class="button" type="submit" @click="showTeamToReplace">Replace a Pokémon in your team with {{ pokemon.name }}!</button>
+        </li>
+        <li v-if="alreadyInTeam">{{ pokemon.name }} is already in your team</li>
+        <li v-if="!alreadyInTeam && !teamFull ">
+          <button class="button" type="submit" @click="addToTeam">Add {{ pokemon.name }} to your team!</button>
+        </li>
         
-      <div class="statsSection">
-        <div class="stats">
-          <div class="statsTitle">
-            <h3>Stats</h3>
-          </div>
-          <div >
-            <p>STR: {{ pokemon.stats.str }}</p>
-            <p>HP: {{ pokemon.stats.hp }}</p>
-            <p>DEF: {{ pokemon.stats.def }}</p>
-          </div>
-        </div>
+      </ul>
 
-        <div class="movesSection">
-          <h3>Moves</h3>
-          <ul class="movesList">
-            <li v-for="move in pokemon.moves" :key="move._id">
-              <strong>{{ move.name }}</strong> ({{ move.type }}): 
-              DMG: {{ move.dmg }}, ACC: {{ move.acc }}, SP: {{ move.sp }}
-              <p v-if="move.effect" class="moveEffect">
-                <br>
-                <em>Effect:</em> {{ move.effect }} ({{ move.effect_acc }}% acc) ({{ move.effect_percent }} eff%)
-              </p>
-            </li>
-          </ul>
-        </div>
+      <div v-if="showPokeToRepalce">
+          <PokemonToReplace :pokemon="userData.team" @select="toggleYesNoModal,replacePokemon(poke)"/>
       </div>
-
+      
     </div>
   </div>
-
-  <div class="selectPokemon" v-if="userData && userData.team">
-    <div v-for="poke in userData.team" :key="poke.name">
-      {{ poke }}
-    </div>
-  </div>  
 </template>
-
 
 <script>
 import typeIcons from "../../assets/data/typeIcons.json";
-import { fetchPokemonByName } from "@/utils/crud";
+import { fetchPokemonByName, addPokemonToTeam } from "@/utils/crud";
 import { getUserData } from "@/utils/auth";
+import Modal from "@/components/General/PopUpModal.vue";
+import PokemonToReplace from "./PokemonToReplace.vue";
+import YesOrNoModal from "../General/YesOrNoModal.vue";
 
 export default {
+  components: {
+    Modal,
+    PokemonToReplace,
+    YesOrNoModal
+  },
   data() {
     return {
       typeIcons: typeIcons,
@@ -66,7 +101,15 @@ export default {
       showButton: false,
       replaceButton: false,
       alreadyInTeam: false,
-      error:null,
+      teamFull:false,
+      error: null,
+      token: localStorage.getItem("PokeSeed_token"),
+      showModal: false,
+      modalTitle: "",
+      modalMessage: "",
+      modalType: "",
+      showYNModal:false,
+      showPokeToRepalce:false,
     };
   },
   methods: {
@@ -77,37 +120,74 @@ export default {
       }
     },
     forSelection() {
-      // Check if the user is logged in
       if (this.userData) {
         this.showButton = true;
       }
 
-      // Check if the Pokémon is already in the user's team
       if (this.userData.team.includes(this.pokemon.name)) {
         this.alreadyInTeam = true;
-      } else if (this.userData.team.length === 4) {
-        // If the team is full, show the replace button
+        this.replaceButton = false;
+      } else if (this.userData.team.length >= 4) {
         this.replaceButton = true;
+      } else {
+        this.replaceButton = false;
+        this.alreadyInTeam = false;
+      }
+      this.teamFull = this.userData.team.length == 4;
+    },
+    async addToTeam() {
+      try {
+        await addPokemonToTeam(this.userData, this.pokemon.name, this.token);
+        this.modalTitle = "Success!";
+        this.modalMessage = `${this.pokemon.name} has been added to your team.`;
+        this.modalType = "primary";
+        this.showModal = true;
+
+        await this.refreshUserData();
+      } catch (error) {
+        this.modalTitle = "Error";
+        this.modalMessage = error.message || "Failed to add Pokémon to your team.";
+        this.modalType = "error";
+        this.showModal = true;
       }
     },
+    async showTeamToReplace() {
+      this.showPokeToRepalce = true;
+    },
+    async refreshUserData() {
+      const userData = await getUserData(this);
+      if (userData) {
+        this.forSelection(); // Refresh button state
+      }
+    },
+    closeModal() {
+      this.showModal = false;
+    },
+    toggleYesNoModal(){
+      this.showYNModal = !this.showYNModal;
+    },
+    replacePokemon(poke){
+      this.modalTitle = `Are you sure?`;
+      this.modalMessage = `do you want to replace ${this.pokemon.name} with ${poke}`;
+    }
   },
   async mounted() {
-    const pokeName = window.location.href.split('/').pop();
+    const pokeName = window.location.href.split("/").pop();
 
     try {
       const pokemonData = await fetchPokemonByName(pokeName);
       this.pokemon = pokemonData;
-      this.getIcon(this.pokemon.type); // Call getIcon after setting pokemon
+      this.getIcon(this.pokemon.type);
 
-      const userData = await getUserData(this); // Fetch user data
+      const userData = await getUserData(this);
       if (userData) {
-        this.forSelection(); // Handle selection logic
+        this.forSelection();
       }
     } catch (error) {
-      this.error = 'Error fetching data: ' + error.message;
+      this.error = "Error fetching data: " + error.message;
       console.error(this.error);
     }
-  }
+  },
 };
 </script>
 
@@ -116,47 +196,49 @@ export default {
   font-family: HomeVideo;
 }
 
+.containerOfPokeCard {
+  padding-top: 15vh;
+}
+
 .PokeCard {
   min-height: fit-content;
   width: 80vw;
   height: fit-content;
-  display: flex;
-  justify-content: center;
   margin: auto;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   border: 2px solid;
   border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .Container {
-  width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-}
-
- .statsSection {
-  width: 48%; /* Take up 48% of the width each with some space between them */
-  display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .imageAndData {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  width: 48%;
 }
 
 .typeAndSuch {
   margin-top: 2vh;
   margin-left: 1vh;
   gap: 5vh;
-  width: 10%;
+  width: 20%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 .typeAndSuch > img {
@@ -169,12 +251,11 @@ export default {
   writing-mode: vertical-rl;
   margin: 0;
   letter-spacing: normal;
-  font-size: 1.1em;
   font-size: 2em;
 }
 
 .ImageAndName {
-  width: 100%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -187,13 +268,18 @@ export default {
 }
 
 .statsSection {
+  width: 48%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+.stats {
+  width: fit-content;
 }
 
 .stats > div > p {
-  font-size: 1.2em;
+  font-size: 1em;
 }
 
 h3 {
@@ -220,72 +306,72 @@ h3 {
   margin-bottom: 1vh;
 }
 
+.selectPokemon {
+  display: flex;
+  justify-content: center;
+  width: fit-content;
+}
+
+.button {
+  font-size: 1.2em;
+  padding-right: 1vw;
+  cursor: pointer;
+}
+
+/* Type Background Colors */
 .fairy {
-  background: linear-gradient(135deg, #EE99AC, #FFCCD4);
+  background: linear-gradient(135deg, #ee99ac, #ffccd4);
 }
-
 .rock {
-  background: linear-gradient(135deg, #B8A038, #D1C07E);
+  background: linear-gradient(135deg, #b8a038, #d1c07e);
 }
-
 .steel {
-  background: linear-gradient(135deg, #B8B8D0, #D0D0E0);
+  background: linear-gradient(135deg, #b8b8d0, #d0d0e0);
 }
-
 .water {
-  background: linear-gradient(135deg, #6890F0, #98A9F0);
+  background: linear-gradient(135deg, #6890f0, #98a9f0);
 }
-
 .ghost {
-  background: linear-gradient(135deg, #705898, #9B81B8);
+  background: linear-gradient(135deg, #705898, #9b81b8);
 }
-
 .psychic {
-  background: linear-gradient(135deg, #F85888, #FF9CA6);
+  background: linear-gradient(135deg, #f85888, #ff9ca6);
 }
-
 .poison {
-  background: linear-gradient(135deg, #A040A0, #B070B0);
+  background: linear-gradient(135deg, #a040a0, #b070b0);
 }
-
 .flying {
-  background: linear-gradient(135deg, #A890F0, #C6B7F0);
+  background: linear-gradient(135deg, #a890f0, #c6b7f5);
 }
-
-.fire {
-  background: linear-gradient(135deg, #F08030, #FFA068);
-}
-
-.normal {
-  background: linear-gradient(135deg, #A8A878, #C6C69E);
-}
-
-.grass {
-  background: linear-gradient(135deg, #78C850, #A0D870);
-}
-
-.ice {
-  background: linear-gradient(135deg, #98D8D8, #C2EBEB);
-}
-
-.fighting {
-  background: linear-gradient(135deg, #C03028, #D87070);
-}
-
-.electric {
-  background: linear-gradient(135deg, #F8D030, #FFE670);
-}
-
-.dark {
-  background: linear-gradient(135deg, #705848, #9B7E68);
-}
-
-.ground {
-  background: linear-gradient(135deg, #E0C068, #F2DE98);
-}
-
 .bug {
-  background: linear-gradient(135deg, #A8B820, #C6D030);
+  background: linear-gradient(135deg, #a8b820, #d0de67);
 }
-</style>
+.ice {
+  background: linear-gradient(135deg, #98d8d8, #b3e7e7);
+}
+.fire {
+  background: linear-gradient(135deg, #f08030, #f4a861);
+}
+.dragon {
+  background: linear-gradient(135deg, #7038f8, #a079f4);
+}
+.dark {
+  background: linear-gradient(135deg, #705848, #a39182);
+}
+.electric {
+  background: linear-gradient(135deg, #f8d030, #fde085);
+}
+.fighting {
+  background: linear-gradient(135deg, #c03028, #dc6b66);
+}
+.grass {
+  background: linear-gradient(135deg, #78c850, #a5d68c);
+}
+.ground {
+  background: linear-gradient(135deg, #e0c068, #f4e0a6);
+}
+.normal {
+  background: linear-gradient(135deg, #a8a878, #d3d3b3);
+}
 
+</style>

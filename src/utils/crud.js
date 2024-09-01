@@ -75,6 +75,30 @@ export async function fetchAllPokemon(This) {
     }
 }
 
+export async function addPokemonToTeam(user, pokemonName, token) {
+    console.log(user.username)
+    try {
+        const response = await axios.post(
+            `/api/users/${user.username}/team`, 
+            { pokemonName },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        if (response.status !== 200) {
+            throw new Error('Failed to add Pokémon');
+        }
+
+        return response.data; // Return the updated team or response data
+    } catch (error) {
+        console.error('Error adding Pokémon to team:', error);
+        throw new Error(error.response?.data?.message || 'Error adding Pokémon to team');
+    }
+}
+
 
 export async function fetchAllTypes(This) {
     try {
