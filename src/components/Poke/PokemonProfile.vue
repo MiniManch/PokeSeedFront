@@ -12,6 +12,8 @@
       v-if="showYNModal"
       :title= "modalTitle"
       :message="modalMessage"
+      @close="toggleYesNoModal"
+      @yes="acceptReplace"
     />
 
     <div :class="['PokeCard', pokemon.type]" v-if="pokemon">
@@ -71,7 +73,7 @@
       </ul>
 
       <div v-if="showPokeToRepalce">
-          <PokemonToReplace :pokemon="userData.team" @select="toggleYesNoModal,replacePokemon(poke)"/>
+          <PokemonToReplace :pokemon="userData.team" @select="replacePokemon"/>
       </div>
       
     </div>
@@ -80,7 +82,7 @@
 
 <script>
 import typeIcons from "../../assets/data/typeIcons.json";
-import { fetchPokemonByName, addPokemonToTeam } from "@/utils/crud";
+import { fetchPokemonByName, addPokemonToTeam, replacePokemonInTeam } from "@/utils/crud";
 import { getUserData } from "@/utils/auth";
 import Modal from "@/components/General/PopUpModal.vue";
 import PokemonToReplace from "./PokemonToReplace.vue";
@@ -169,6 +171,13 @@ export default {
     replacePokemon(poke){
       this.modalTitle = `Are you sure?`;
       this.modalMessage = `do you want to replace ${this.pokemon.name} with ${poke}`;
+      this.toggleYesNoModal();
+    },
+    async acceptReplace(pokeName,newPokeName){
+      await replacePokemonInTeam(this.userData,this.pokemon.name,newPokeName,this.token).then( 
+        await this.refreshUserData()
+      )
+      this.toggleYesNoModal()
     }
   },
   async mounted() {

@@ -99,6 +99,27 @@ export async function addPokemonToTeam(user, pokemonName, token) {
     }
 }
 
+export async function replacePokemonInTeam(user, pokemon,newPokemon, token) {
+    try {
+        const response = await axios.patch(
+            `/api/users/${user.username}/team`, 
+            { pokemon,newPokemon },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        if (response.status !== 200) {
+            throw new Error('Failed to replace Pokémon');
+        }
+
+    } catch (error) {
+        console.error('Error replacing Pokémon in team:', error);
+        throw new Error(error.response?.data?.message || 'Error replacing Pokémon in team');
+    }
+}
 
 export async function fetchAllTypes(This) {
     try {
