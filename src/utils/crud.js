@@ -41,13 +41,12 @@ export async function fetchPokemonByName(name) {
       if (!response.ok) {
         throw new Error('Failed to fetch Pokémon');
       }
-      return await response.json(); // Return the Pokémon data
+      return await response.json();
     } catch (error) {
       console.error('Error fetching Pokémon:', error);
-      throw error; // Rethrow the error to handle it in the component
+      throw error; 
     }
   }
-  
 
 export async function fetchPokemonByType(This) {
     try {
@@ -99,11 +98,11 @@ export async function addPokemonToTeam(user, pokemonName, token) {
     }
 }
 
-export async function replacePokemonInTeam(user, pokemon,newPokemon, token) {
+export async function replacePokemonInTeam({user, pokemon,newPokemon, token}) {
     try {
         const response = await axios.patch(
             `/api/users/${user.username}/team`, 
-            { pokemon,newPokemon },
+            { oldPokemonName: pokemon, newPokemonName: newPokemon },
             {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -113,6 +112,9 @@ export async function replacePokemonInTeam(user, pokemon,newPokemon, token) {
 
         if (response.status !== 200) {
             throw new Error('Failed to replace Pokémon');
+        }
+        else{
+            return true;
         }
 
     } catch (error) {

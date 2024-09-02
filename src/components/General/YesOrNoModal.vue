@@ -1,12 +1,12 @@
 <template>
     <div class="modal-overlay">
-        <div class="Modal primary modal-content">
+        <div class="Modal primary modal-content framed">
             <div class="modal-header">
-                <h2>{{ title }}</h2>
+                <h2 class="modal-text">{{ title }}</h2>
                 <span class="close" @click="handleClose">&times;</span>
             </div>
             <div class="modal-body">
-                <h3>{{ message }}</h3>
+                <h3 class="modal-text">{{ message }}</h3>
                 <div class="modal-actions">
                     <button class="btn btn-yes" @click="handleYes">Yes</button>
                     <button class="btn btn-no" @click="handleClose">No</button>
@@ -63,8 +63,12 @@ export default {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     padding: 20px;
     width: 30vw;
+    color:black;
+    background-color: white;
 }
-
+.modal-text{
+    font-weight: 100;
+}
 .modal-header {
     display: flex;
     align-items: center;
@@ -104,7 +108,6 @@ export default {
 .modal-body button {
     padding: 10px 20px;
     font-size: 16px;
-    color: #fff;
     background-color: black;
     border-radius: 5px;
     cursor: pointer;

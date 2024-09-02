@@ -62,7 +62,7 @@
         </div>
       </div>
       <ul class="framed buttons selectPokemon" v-if="userData && showButton ">
-        <li v-if="replaceButton && !showPokeToRepalce">
+        <li v-if="replaceButton && !showPokeToReplace">
           <button class="button" type="submit" @click="showTeamToReplace">Replace a Pokémon in your team with {{ pokemon.name }}!</button>
         </li>
         <li v-if="alreadyInTeam">{{ pokemon.name }} is already in your team</li>
@@ -72,7 +72,7 @@
         
       </ul>
 
-      <div v-if="showPokeToRepalce">
+      <div v-if="showPokeToReplace">
           <PokemonToReplace :pokemon="userData.team" @select="replacePokemon"/>
       </div>
       
@@ -104,6 +104,7 @@ export default {
       replaceButton: false,
       alreadyInTeam: false,
       teamFull:false,
+      oldPoke:null,
       error: null,
       token: localStorage.getItem("PokeSeed_token"),
       showModal: false,
@@ -111,7 +112,7 @@ export default {
       modalMessage: "",
       modalType: "",
       showYNModal:false,
-      showPokeToRepalce:false,
+      showPokeToReplace:false,
     };
   },
   methods: {
@@ -154,7 +155,7 @@ export default {
       }
     },
     async showTeamToReplace() {
-      this.showPokeToRepalce = true;
+      this.showPokeToReplace = true;
     },
     async refreshUserData() {
       const userData = await getUserData(this);
@@ -171,13 +172,19 @@ export default {
     replacePokemon(poke){
       this.modalTitle = `Are you sure?`;
       this.modalMessage = `do you want to replace ${this.pokemon.name} with ${poke}`;
+      this.oldPoke = poke;
       this.toggleYesNoModal();
     },
-    async acceptReplace(pokeName,newPokeName){
-      await replacePokemonInTeam(this.userData,this.pokemon.name,newPokeName,this.token).then( 
+    async acceptReplace(){
+      await replacePokemonInTeam({user:this.userData,newPokemon:this.pokemon.name,pokemon:this.oldPoke,token:this.token}).then( 
         await this.refreshUserData()
       )
-      this.toggleYesNoModal()
+      this.toggleYesNoModal();
+      this.showPokeToReplace = false;
+      this.modalTitle = `Success!`;
+      this.modalMessage = `${this.pokemon.name} was successfully added to your team instead of ${this.oldPoke}`;
+      this.showModal = true;
+      this.oldPoke = null;
     }
   },
   async mounted() {
