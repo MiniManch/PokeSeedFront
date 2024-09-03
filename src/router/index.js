@@ -7,6 +7,8 @@ import ViewPokemon from '../components/Poke/ViewPokemon.vue';
 import PokemonProfile from '../components/Poke/PokemonProfile.vue';
 import PlayGame from '../components/Game/PlayGame.vue';
 import playerProfile from '../components/Game/GameProfile.vue';
+import newTournament from '../components/Tournament/NewTournament.vue';
+
 
 
 
@@ -37,6 +39,7 @@ const routes = [
         component: playerProfile,
         name: 'playerProfile',
     },
+    { path: '/tournament/new', component: newTournament, name: 'newTournament' },
 ];
 
 const router = createRouter({
