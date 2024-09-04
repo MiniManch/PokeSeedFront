@@ -35,6 +35,24 @@ export async function getTrainerData(This,trainerName) {
     }
 }
 
+export async function fetchTrainerDataAndAddToList(This, trainerName) {
+    try {
+      const token = localStorage.getItem('PokeSeed_token'); 
+  
+      const response = await axios.get(`/api/trainers/${trainerName}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      // Add the response to the trainerData array
+      This.trainerData.push(response.data);
+    } catch (error) {
+      This.message = error.response?.data?.message || 'Error fetching trainer data';
+      This.trainerData = null;
+    }
+  }
+  
+
 export async function fetchPokemonByName(name) {
     try {
       const response = await fetch(`/api/pokemon/${name}`);
