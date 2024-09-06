@@ -43,6 +43,8 @@ export async function getUserData(This) {
         });
 
         This.userData = response.data.user;
+        localStorage.setItem('PokeSeed_userData', JSON.stringify(this.userData));
+        
         return true;
     } catch (error) {
         This.message = error.response?.data?.message || 'Error fetching user data';

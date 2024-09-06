@@ -27,8 +27,7 @@ export async function getTrainerData(This,trainerName) {
                 'Authorization': `Bearer ${token}`
             }
         });
-        This.trainerData = response.data; 
-        console.log(response.data)
+        return response.data
     } catch (error) {
         This.message = error.response?.data?.message || 'Error fetching trainer data';
         This.trainerData = null; // Optionally set it to null on error

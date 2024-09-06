@@ -44,7 +44,7 @@ export default {
     data(){
         return{
             trainerData: null,
-            userData: null,
+            userData: localStorage.getItem('PokeSeed_userData'),
             closeSrc: '/Images/profileImages/pokeball/close.png',
             openSrc: '/Images/profileImages/pokeball/open.png',
             computedPoke: []
@@ -76,7 +76,7 @@ export default {
         if (!isValid) {
             this.$router.push('/login');
         } else {
-            await getTrainerData(this, this.userData.trainer);
+            this.trainerData = await getTrainerData(this, this.userData.trainer);
             this.setupTeamData();
         }
     }

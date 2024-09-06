@@ -4,16 +4,16 @@
       <div class="match" v-for="match in round" :key="match.matchNumber">
         <div class="team">
           <div v-if="getTrainerDataForDisplay(match.players[0])">
-            <img :src="getTrainerDataForDisplay(match.players[0]).frontSprite" alt="Front Sprite" />
-            {{ match.players[0] }} (Rating: {{ getTrainerDataForDisplay(match.players[0]).rating }})
-            {{ isPlayer(match.players[0]) ? '(P)' : null }}
+            {{ match.players[0] }} 
+            <br>
+            {{ isPlayer(match.players[0]) ? '(P)' : `(Rating: ${getTrainerDataForDisplay(match.players[0]).rating})` }}
           </div>
         </div>
         <div class="team">
           <div v-if="getTrainerDataForDisplay(match.players[1])">
-            <img :src="getTrainerDataForDisplay(match.players[1]).frontSprite" alt="Front Sprite" />
-            {{ match.players[1] }} (Rating: {{ getTrainerDataForDisplay(match.players[1]).rating }})
-            {{ isPlayer(match.players[1]) ? '(P)' : null }}
+            {{ match.players[1] }} 
+            <br>
+            {{ isPlayer(match.players[1]) ? '(P)' : `(Rating: ${getTrainerDataForDisplay(match.players[1]).rating})` }}
           </div>
         </div>
       </div>
@@ -57,9 +57,6 @@ export default {
 
       return rounds;
     },
-    isPlayer() {
-      return (trainer) => trainer === this.userData.trainer;
-    },
   },
   methods: {
     async fetchTrainerDataForTournament() {
@@ -83,7 +80,7 @@ export default {
           username: this.userData.username,
         });
         this.tournament = response.data;
-        localStorage.setItem('tournament', JSON.stringify(this.tournament));
+        localStorage.setItem('PokeSeed_tournamentTree', JSON.stringify(this.tournament));
 
         // Fetch trainer data after creating the tournament
         await this.fetchTrainerDataForTournament();
@@ -91,11 +88,13 @@ export default {
         console.error('Error creating tournament:', error);
       }
     },
+    isPlayer(trainer) {
+      return trainer === this.userData.trainer;
+    },
   },
   async mounted() {
     try {
-      const userData = await getUserData(this);
-      this.userData = userData;
+      await getUserData(this);
 
       if (!this.tournament) {
         await this.createTournament();
@@ -119,6 +118,11 @@ body {
   font-family: helvetica, arial, sans-serif;
 }
 
+br{
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+}
+
 .bracket {
   display: flex;
 }
@@ -134,13 +138,15 @@ body {
 .match {
   margin: 15px 0;
   overflow: hidden;
-  border-radius: 5px;
+  border-radius: 5px; 
+  min-width: fit-content;
 }
 
 .team {
   color: #fff;
   padding: 10px 8px;
   background-color: #74b9ff;
+  min-width: 10vw;
 }
 
 .team:nth-child(odd) {
