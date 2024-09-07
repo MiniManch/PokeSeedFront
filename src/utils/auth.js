@@ -1,4 +1,5 @@
 import axios from "axios";
+import  {fetchPokemonByName} from './crud.js';
 
 export async function checkTokenValidity() {
     const token = localStorage.getItem('PokeSeed_token');
@@ -42,8 +43,13 @@ export async function getUserData(This) {
             }
         });
 
-        This.userData = response.data.user;
-        localStorage.setItem('PokeSeed_userData', JSON.stringify(this.userData));
+        let userData = response.data.user;
+        
+        // Await for all promises to resolve
+        userData.team = await Promise.all(userData.team.map(async (poke) => await fetchPokemonByName(poke)));
+        
+        This.userData = userData;
+        localStorage.setItem('PokeSeed_userData', JSON.stringify(This.userData));
         
         return true;
     } catch (error) {
