@@ -31,7 +31,10 @@ export default {
   },
   computed: {
     widthOfHealthBar() {
-      return Math.floor((this.currentHp / this.poke.stats.hp) * 100);
+        if(this.currentHp > 0 ){
+           return Math.floor((this.currentHp / this.poke.stats.hp) * 100)
+        }
+      return 0;
     },
     healthBarColor() {
       const percentage = this.widthOfHealthBar;
@@ -63,7 +66,6 @@ p {
   flex-direction: column;
   justify-content: center;
   gap: 3vh;
-  background-color: white;
 }
 
 .healthBar {
@@ -74,24 +76,24 @@ p {
 .bar-background {
   display: flex;
   align-items: center;
-  background-color: grey;
 }
 
 .bar {
   height: 4vh;
   background-color: green;
   margin-right: 1vw;
-  transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out; /* Smooth transitions */
+  transition: width 1s ease-in-out, background-color 1s ease-in-out; /* Smooth transitions */
 }
 
 .name {
   text-transform: capitalize;
   font-weight: bold;
+  font-size: 1.4em;
 }
 
 .PokeStats.player {
   right: 1vw;
-  bottom: 20vh;
+  bottom: 30vh;
 }
 
 .PokeStats.opponent {
