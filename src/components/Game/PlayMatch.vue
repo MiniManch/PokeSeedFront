@@ -1,5 +1,7 @@
 <template>
+  
   <div class="pokeBattle" :style="{ backgroundImage: 'url(' + battleBg + ')' }">
+
     <!-- Opponent Panel -->
     <PlayerPanel
       :poke="oppPoke"
@@ -18,6 +20,7 @@
       v-if="userPoke && userPokeHealth"
     />
   </div>
+
 </template>
 
 <script>
@@ -60,6 +63,8 @@ export default {
           this.opponent = await getTrainerData(this, player);
           this.oppPoke = this.opponent.team[0];
           this.userPoke = this.userData.team[0];
+
+          console.log(this.opponent)
 
           this.oppPokeHealth = this.opponent.team[0].stats.hp;
           this.userPokeHealth = this.userData.team[0].stats.hp;

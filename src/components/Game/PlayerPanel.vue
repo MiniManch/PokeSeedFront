@@ -29,14 +29,12 @@
             <li><button class="button">Fight</button></li>
             <li><button class="pokemon">PKMN</button></li>
             <li><button class="button">Item</button></li>
-            <li><button class="button">Run</button></li>
         </ul>
 
         <ul class="framed buttons compact options" v-if="itemMenu">
             <li><button class="button">Fight</button></li>
             <li><button class="pokemon">PKMN</button></li>
             <li><button class="button">Item</button></li>
-            <li><button class="button">Run</button></li>
         </ul>
        </div>
 
@@ -126,7 +124,8 @@
     border-top: none;
     width:50%;
 
-    font-size: 1.5em;
+   font-size: 1.5em;
+   background: white;
   }
   </style>
   

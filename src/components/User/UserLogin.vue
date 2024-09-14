@@ -49,7 +49,7 @@ export default {
         });
         localStorage.setItem("PokeSeed_token", response.data.token);
         localStorage.setItem("PokeSeed_username", response.data.user.username);
-        localStorage.setItem("PokeSeed_userData", response.data.user);
+        localStorage.setItem("PokeSeed_userData", JSON.stringify(response.data.user));
         
         (this.successMessage = "Logged In Successfully."),
           (this.messageType = "Success!");

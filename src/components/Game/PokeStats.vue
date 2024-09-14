@@ -66,6 +66,7 @@ p {
   flex-direction: column;
   justify-content: center;
   gap: 3vh;
+  background: white;
 }
 
 .healthBar {
@@ -76,6 +77,7 @@ p {
 .bar-background {
   display: flex;
   align-items: center;
+  background: grey;
 }
 
 .bar {
