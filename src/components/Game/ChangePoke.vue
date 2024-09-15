@@ -1,13 +1,65 @@
 <template >
-    <div>
+    <div class="changePoke">
+
+        <div class="selectedPoke">
+            <img :src="selectedPoke.pokeDexImg" alt="">
+        </div>
+
+        <div class="availablePoke">
+            <div class="poke" v-for="poke in relevantPoke" :key=poke.name>
+                <img :src="poke.pokeDexImg" alt="">
+            </div>
+        </div>
         
     </div>
 </template>
+
 <script>
 export default {
-    
+    props:{
+        pokemon:{
+            type: Array
+        },
+        selectedPoke:{
+            type: Object
+        }
+    },
+    computed:{
+        relevantPoke(){
+            return this.pokemon.filter(obj => obj.name != this.selectedPoke.name)
+        }
+    }
 }
 </script>
-<style >
+
+<style scoped >
+.changePoke{
+    height:100vh;
+    width:100vw;
+    z-index: 3;
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top:0;
+    background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/2fb2821a-1406-4a1d-9b04-6668f278e944/d86y3jj-26cb5089-c206-4f0d-83e3-3347c354ba17.png/v1/fit/w_800,h_480,q_70,strp/x_and_y_menu_background_1_by_phoenixoflight92_d86y3jj-414w-2x.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NDgwIiwicGF0aCI6IlwvZlwvMmZiMjgyMWEtMTQwNi00YTFkLTliMDQtNjY2OGYyNzhlOTQ0XC9kODZ5M2pqLTI2Y2I1MDg5LWMyMDYtNGYwZC04M2UzLTMzNDdjMzU0YmExNy5wbmciLCJ3aWR0aCI6Ijw9ODAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.brFQ805zF5HwQabd2sYFB-M1oDUGSCy0Id0dbdqN9pQ');
+}
+
+.selectedPoke{
+    width:50%;
+    height:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.availablePoke{
+    height:100%;
+    width:20%;
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: flex-end;
+}
     
 </style>

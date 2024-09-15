@@ -21,7 +21,7 @@
         <div class="text"></div>
         <ul class="framed buttons compact options">
             <li><button class="button">Fight</button></li>
-            <li><button class="pokemon button">PKMN</button></li>
+            <li><button class="pokemon button" @click="openChngPoke">PKMN</button></li>
             <li><button class="button">Item</button></li>
         </ul>
 
@@ -68,13 +68,12 @@
     },
     computed: {
       pokeSprite() {
-        // Use different sprites based on whether the Pokémon is the player's or the opponent's
         return this.isPlayer ? this.poke.backSprite : this.poke.frontSprite;
       }
     },
     methods: {
-        openMenu(){
-
+        openChngPoke(){
+          this.$emit("displayChngPoke")
         }
     }
   };

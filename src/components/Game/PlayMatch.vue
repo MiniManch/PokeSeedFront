@@ -17,10 +17,12 @@
       :currentHp="userPokeHealth"
       :isPlayer="true"
       :turn="true"
+      @displayChngPoke="showChngPoke = true"
       v-if="userPoke && userPokeHealth"
     />
-  </div>
 
+  </div>
+  <ChangePoke :selectedPoke='userPoke' :pokemon="userData.team" v-if="userPoke && userData.team && showChngPoke" />
 </template>
 
 <script>
@@ -28,6 +30,7 @@ import { getUserData } from '@/utils/auth';
 import { getTrainerData } from '@/utils/crud';
 import battleBgs from "@/assets/data/battleBgs.json";
 import PlayerPanel from './PlayerPanel.vue'; // Import PlayerPanel component
+import ChangePoke from './ChangePoke.vue';
 
 export default {
   data() {
@@ -41,6 +44,7 @@ export default {
       battleBg: null, 
       oppPokeHealth: null,
       userPokeHealth: null,
+      showChngPoke:false,
     };
   },
   methods: {
@@ -64,8 +68,6 @@ export default {
           this.oppPoke = this.opponent.team[0];
           this.userPoke = this.userData.team[0];
 
-          console.log(this.opponent)
-
           this.oppPokeHealth = this.opponent.team[0].stats.hp;
           this.userPokeHealth = this.userData.team[0].stats.hp;
         }
@@ -78,7 +80,8 @@ export default {
     await this.findGame();
   },
   components: {
-    PlayerPanel, // Register PlayerPanel component
+    PlayerPanel, 
+    ChangePoke
   },
 };
 </script>
