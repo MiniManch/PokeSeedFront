@@ -3,11 +3,37 @@
 
         <div class="selectedPoke">
             <img :src="selectedPoke.pokeDexImg" alt="">
+            <div class="stats">
+                <p>{{selectedPoke.name}}</p>
+                <div class="healthBar">
+                    <div class="bar-background">
+                      <p>HP</p>
+                      <div class="bar" :style="{ width: `${widthOfHealthBar(selectedPoke)}%`, backgroundColor: healthBarColor(selectedPoke) }"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="availablePoke">
             <div class="poke" v-for="poke in relevantPoke" :key=poke.name>
+
                 <img :src="poke.pokeDexImg" alt="">
+                <div class="stats">
+                    <p>{{poke.name}}</p>
+                    <div class="healthBar">
+                        <div class="bar-background">
+                          <p>HP</p>
+                          <div class="bar" :style="{ width: `${widthOfHealthBar(poke)}%`, backgroundColor: healthBarColor(poke) }"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="moves">
+                    <div class="move" v-for="move in poke.moves" :key="move.name">
+                        <viewPokeMove :move="move"/>
+                    </div>
+                </div>
+                
             </div>
         </div>
         
@@ -15,6 +41,7 @@
 </template>
 
 <script>
+import viewPokeMove from './viewPokeMove.vue';
 export default {
     props:{
         pokemon:{
@@ -27,7 +54,28 @@ export default {
     computed:{
         relevantPoke(){
             return this.pokemon.filter(obj => obj.name != this.selectedPoke.name)
-        }
+        },
+    },
+    methods:{
+        widthOfHealthBar(poke) {
+            if(poke.stats.currentHp > 0 ){
+            return Math.floor((poke.stats.currentHp / poke.stats.hp) * 100)
+            }
+        return 0;
+        },
+        healthBarColor(poke) {
+            const percentage = (poke.stats.hp/poke.stats.currentHp)*100;
+            if (percentage > 60) {
+                return "green";
+            } else if (percentage > 30) {
+                return "yellow";
+            } else {
+                return "red";
+            }
+        },
+    },
+    components:{
+        viewPokeMove,
     }
 }
 </script>
@@ -60,6 +108,48 @@ export default {
 
     justify-content: center;
     align-items: flex-end;
+    gap:5vh;
 }
     
+.poke{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.healthBar {
+    align-self: center;
+    width: 10vw;
+  }
+  
+  .bar-background {
+    display: flex;
+    align-items: center;
+    background: grey;
+  }
+  .bar-background > p{
+    padding-left: 1vh;
+    padding-right: 1vh;
+    color: orange;
+  }
+  .bar {
+    height: 4vh;
+    background-color: green;
+    margin-right: 1vw;
+    transition: width 1s ease-in-out, background-color 1s ease-in-out; /* Smooth transitions */
+  }
+
+  .moves{
+    width:10vw;
+    display: flex;
+    gap: 2vw;
+  }
+  
+  .move{
+    width:fit-content;
+  }
+
+  img{
+    width:10vw;
+  }
 </style>

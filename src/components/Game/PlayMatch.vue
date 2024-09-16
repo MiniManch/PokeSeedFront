@@ -22,7 +22,7 @@
     />
 
   </div>
-  <ChangePoke :selectedPoke='userPoke' :pokemon="userData.team" v-if="userPoke && userData.team && showChngPoke" />
+  <ChangePoke :selectedPoke='userPoke' :pokemon="userPokemon" v-if="userPoke && userData.team && showChngPoke" />
 </template>
 
 <script>
@@ -45,6 +45,7 @@ export default {
       oppPokeHealth: null,
       userPokeHealth: null,
       showChngPoke:false,
+      userPokemon: null,
     };
   },
   methods: {
@@ -66,10 +67,11 @@ export default {
         if (player !== this.userData.trainer) {
           this.opponent = await getTrainerData(this, player);
           this.oppPoke = this.opponent.team[0];
-          this.userPoke = this.userData.team[0];
+          this.userPokemon = this.userData.team.map(obj => {obj.stats.currentHp = obj.stats.hp; return obj;} )
+          this.userPoke = this.userPokemon[0];
 
           this.oppPokeHealth = this.opponent.team[0].stats.hp;
-          this.userPokeHealth = this.userData.team[0].stats.hp;
+          this.userPokeHealth = this.userPoke.stats.hp;
         }
       }
     },
