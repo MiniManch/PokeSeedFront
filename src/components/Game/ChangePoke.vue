@@ -1,4 +1,4 @@
-<template >
+<template>
     <div class="changePoke">
 
         <div class="selectedPoke">
@@ -15,56 +15,68 @@
         </div>
 
         <div class="availablePoke">
-            <div class="poke" v-for="poke in relevantPoke" :key=poke.name>
+            <div class="poke" v-for="poke in relevantPoke" :key="poke.name">
+                <div class="imgAndStats">
+                    <img :src="poke.pokeDexImg" alt="">
 
-                <img :src="poke.pokeDexImg" alt="">
-                <div class="stats">
-                    <p>{{poke.name}}</p>
-                    <div class="healthBar">
-                        <div class="bar-background">
-                          <p>HP</p>
-                          <div class="bar" :style="{ width: `${widthOfHealthBar(poke)}%`, backgroundColor: healthBarColor(poke) }"></div>
+                    <div class="stats" v-if="currentPokemon !== poke">
+                        <p>{{poke.name}}</p>
+                        <div class="healthBar">
+                            <div class="bar-background">
+                              <p>HP</p>
+                              <div class="bar" :style="{ width: `${widthOfHealthBar(poke)}%`, backgroundColor: healthBarColor(poke) }"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="moves" v-if="currentPokemon === poke">
+                        <div class="move" v-for="move in poke.moves" :key="move.name">
+                            <viewPokeMove :move="move" />
                         </div>
                     </div>
                 </div>
-                
-                <!-- <div class="moves">
-                    <div class="move" v-for="move in poke.moves" :key="move.name">
-                        <viewPokeMove :move="move"/>
-                    </div>
-                </div> -->
-                
+
+                <button class="button" @click="displayMoves(poke)">
+                    {{ currentPokemon === poke ? 'Hide Moves' : 'View Moves' }}
+                </button>
+
             </div>
         </div>
-        
+
     </div>
 </template>
 
 <script>
-// import viewPokeMove from './viewPokeMove.vue';
+import viewPokeMove from './viewPokeMove.vue';
+
 export default {
-    props:{
-        pokemon:{
+    props: {
+        pokemon: {
             type: Array
         },
-        selectedPoke:{
+        selectedPoke: {
             type: Object
         }
     },
-    computed:{
-        relevantPoke(){
+    data() {
+        return {
+            currentPokemon: null // Store the currently selected Pokemon for moves
+        };
+    },
+    computed: {
+        relevantPoke() {
             return this.pokemon.filter(obj => obj.name != this.selectedPoke.name)
         },
     },
-    methods:{
+    methods: {
         widthOfHealthBar(poke) {
-            if(poke.stats.currentHp > 0 ){
-            return Math.floor((poke.stats.currentHp / poke.stats.hp) * 100)
+            if (poke.stats.currentHp > 0) {
+                return Math.floor((poke.stats.currentHp / poke.stats.hp) * 100)
             }
-        return 0;
+            return 0;
         },
         healthBarColor(poke) {
-            const percentage = (poke.stats.hp/poke.stats.currentHp)*100;
+            const percentage = (poke.stats.hp / poke.stats.currentHp) * 100;
             if (percentage > 60) {
                 return "green";
             } else if (percentage > 30) {
@@ -73,9 +85,17 @@ export default {
                 return "red";
             }
         },
+        displayMoves(poke) {
+            // Toggle moves display for the clicked Pokemon
+            if (this.currentPokemon === poke) {
+                this.currentPokemon = null; // Hide moves if already selected
+            } else {
+                this.currentPokemon = poke; // Show moves for the selected Pokemon
+            }
+        }
     },
-    components:{
-        // viewPokeMove,
+    components: {
+        viewPokeMove,
     }
 }
 </script>
@@ -113,6 +133,11 @@ export default {
     
 .poke{
     display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.imgAndStats{
+    display: flex;
     align-items: center;
     justify-content: flex-start;
 }
@@ -140,7 +165,8 @@ export default {
   }
 
   .moves{
-    width:10vw;;
+    width:30vw;
+    height:30vh;
     display: flex;
     justify-content: flex-start;
     gap: 2vw;
@@ -162,5 +188,6 @@ export default {
 
   img{
     width:10vw;
+    height:20vh;
   }
 </style>
