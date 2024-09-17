@@ -16,7 +16,6 @@ export default {
     methods:{
         getIcon(move){
             const icon = typeIcons.filter(obj=>obj.name == move.type)[0];
-            console.log(icon)
             return icon.image;
         }
     }
@@ -25,6 +24,11 @@ export default {
 </script>
 
 <style scoped>
+    .viewMoveContainer{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
     img{
         width:2vw;
     }

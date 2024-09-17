@@ -28,11 +28,11 @@
                     </div>
                 </div>
                 
-                <div class="moves">
+                <!-- <div class="moves">
                     <div class="move" v-for="move in poke.moves" :key="move.name">
                         <viewPokeMove :move="move"/>
                     </div>
-                </div>
+                </div> -->
                 
             </div>
         </div>
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import viewPokeMove from './viewPokeMove.vue';
+// import viewPokeMove from './viewPokeMove.vue';
 export default {
     props:{
         pokemon:{
@@ -75,7 +75,7 @@ export default {
         },
     },
     components:{
-        viewPokeMove,
+        // viewPokeMove,
     }
 }
 </script>
@@ -102,12 +102,12 @@ export default {
 
 .availablePoke{
     height:100%;
-    width:20%;
+    width:50%;
     display: flex;
     flex-direction: column;
 
     justify-content: center;
-    align-items: flex-end;
+    align-items: flex-start;
     gap:5vh;
 }
     
@@ -119,7 +119,7 @@ export default {
 
 .healthBar {
     align-self: center;
-    width: 10vw;
+    width: 15vw;
   }
   
   .bar-background {
@@ -140,13 +140,24 @@ export default {
   }
 
   .moves{
-    width:10vw;
+    width:10vw;;
     display: flex;
+    justify-content: flex-start;
     gap: 2vw;
   }
   
   .move{
     width:fit-content;
+   
+  }
+  .stats{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .stats > p {
+    text-transform: uppercase;
+
   }
 
   img{
