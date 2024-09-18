@@ -1,130 +1,148 @@
 <template>
-    <div class="playerPanel" :class="{ opponentPanel: !isPlayer, userPanel: isPlayer }">
-      <!-- Pokémon Stats -->
-      <PokeStats
-        :poke="poke"
-        :currentHp="currentHp"
-        :turn="turn"
-        :isPlayer="isPlayer"
-      />
-  
-      <!-- Pokémon Sprite -->
-      <img 
-        :src="pokeSprite" 
-        class="Poke" 
-        :class="{ 'userPoke': isPlayer, 'oppPoke': !isPlayer }"
-        v-if="poke && currentHp" 
-      />
+  <div class="playerPanel" :class="{ opponentPanel: !isPlayer, userPanel: isPlayer }">
+    <!-- Pokémon Stats -->
+    <PokeStats
+      :poke="poke"
+      :currentHp="currentHp"
+      :turn="turn"
+      :isPlayer="isPlayer"
+    />
 
-      <!-- Moves and such -->
-       <div class="moves" v-if="isPlayer">
-        <div class="text"></div>
-        <ul class="framed buttons compact options">
-            <li><button class="button">Fight</button></li>
-            <li><button class="pokemon button" @click="openChngPoke">PKMN</button></li>
-            <li><button class="button">Item</button></li>
-        </ul>
+    <!-- Pokémon Sprite -->
+    <img 
+      :src="pokeSprite" 
+      class="Poke" 
+      :class="{ 'userPoke': isPlayer, 'oppPoke': !isPlayer }"
+      v-if="poke && currentHp" 
+    />
 
-        <ul class="framed buttons compact options" v-if="fightMenu">
-            <li><button class="button">Fight</button></li>
-            <li><button class="pokemon">PKMN</button></li>
-            <li><button class="button">Item</button></li>
-        </ul>
-
-        <ul class="framed buttons compact options" v-if="itemMenu">
-            <li><button class="button">Fight</button></li>
-            <li><button class="pokemon">PKMN</button></li>
-            <li><button class="button">Item</button></li>
-        </ul>
-       </div>
-
+    <!-- Player's Action Menu -->
+    <div class="moves" v-if="isPlayer && !showMoves">
+      <ul class="framed buttons compact options">
+        <li><button class="button" @click="openFightMenu">Fight</button></li>
+        <li><button class="pokemon button" @click="openChngPoke">PKMN</button></li>
+        <li><button class="button">Item</button></li>
+      </ul>
     </div>
-  </template>
-  
-  <script>
-  import PokeStats from './PokeStats.vue';
-  
-  export default {
-    props: {
-      poke: {
-        type: Object,
-        required: true
-      },
-      currentHp: {
-        type: Number,
-        required: true
-      },
-      isPlayer: {
-        type: Boolean,
-        default: true
-      },
-      turn: {
-        type: Boolean,
-        default: false
-      }
+
+    <!-- Moves Menu -->
+    <div class="movesList" v-if="isPlayer && showMoves">
+      <ul class="framed buttons compact move-options">
+        <li v-for="move in poke.moves" :key="move.name">
+          <button class="button">{{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})</button>
+        </li>
+      </ul>
+      <button class="button back" @click="closeFightMenu">Back</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import PokeStats from './PokeStats.vue';
+
+export default {
+  props: {
+    poke: {
+      type: Object,
+      required: true
     },
-    components: {
-      PokeStats
+    currentHp: {
+      type: Number,
+      required: true
     },
-    computed: {
-      pokeSprite() {
-        return this.isPlayer ? this.poke.backSprite : this.poke.frontSprite;
-      }
+    isPlayer: {
+      type: Boolean,
+      default: true
     },
-    methods: {
-        openChngPoke(){
-          this.$emit("displayChngPoke")
-        }
+    turn: {
+      type: Boolean,
+      default: false
     }
-  };
-  </script>
-  
-  <style scoped>
-  .playerPanel {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width:100%;
+  },
+  data() {
+    return {
+      showMoves: false
+    };
+  },
+  components: {
+    PokeStats
+  },
+  computed: {
+    pokeSprite() {
+      return this.isPlayer ? this.poke.backSprite : this.poke.frontSprite;
+    }
+  },
+  methods: {
+    openFightMenu() {
+      this.showMoves = true;
+    },
+    closeFightMenu() {
+      this.showMoves = false;
+    },
+    openChngPoke() {
+      this.$emit("displayChngPoke");
+    }
+  },
+  mounted(){
+    console.log(this.poke)
   }
-  
-  .userPanel {
-    position: absolute;
-    bottom: 0vh;
-  }
-  
-  .opponentPanel {
-    position: absolute;
-  }
-  
-  .Poke {
-    height: 50vh;
-  }
-  
-  .userPoke {
-    position: absolute;
-    bottom: 10vh;
-    left:8vw;
-  }
-  
-  .oppPoke {
-    position: absolute;
-    top:0vh;
-    right:10vw;
-  }
+};
+</script>
 
-  .options{
-    position: absolute;
-    right: 0;
-    bottom: 10vh;
-    height: 20vh;
-    margin-right: 1vw;
-    border-top: none;
-    width:50%;
+<style scoped>
+.playerPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
 
-   font-size: 1.5em;
-   background: white;
-  }
-  </style>
-  
+.userPanel {
+  position: absolute;
+  bottom: 0vh;
+}
+
+.opponentPanel {
+  position: absolute;
+}
+
+.Poke {
+  height: 50vh;
+}
+
+.userPoke {
+  position: absolute;
+  bottom: 10vh;
+  left: 8vw;
+}
+
+.oppPoke {
+  position: absolute;
+  top: 0vh;
+  right: 10vw;
+}
+
+.options, .move-options {
+  position: absolute;
+  right: 0;
+  bottom: 10vh;
+  height: 20vh;
+  margin-right: 1vw;
+  width: 50%;
+  font-size: 1.5em;
+  background: white;
+}
+
+.movesList .button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.back {
+  margin-top: 15px;
+  width: auto;
+}
+</style>

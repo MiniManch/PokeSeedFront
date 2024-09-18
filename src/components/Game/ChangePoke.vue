@@ -82,6 +82,7 @@ export default {
             return 0;
         },
         healthBarColor(poke) {
+            console.log(poke)
             const percentage = (poke.stats.hp / poke.stats.currentHp) * 100;
             if (percentage > 60) {
                 return "green";

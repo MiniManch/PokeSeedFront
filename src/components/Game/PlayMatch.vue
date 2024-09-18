@@ -1,7 +1,5 @@
 <template>
-  
   <div class="pokeBattle" :style="{ backgroundImage: 'url(' + battleBg + ')' }">
-
     <!-- Opponent Panel -->
     <PlayerPanel
       :poke="oppPoke"
@@ -18,23 +16,24 @@
       :isPlayer="true"
       :turn="true"
       @displayChngPoke="showChngPoke = true"
+      @moveUsed="handleMoveUsage"
       v-if="userPoke && userPokeHealth"
     />
 
   </div>
   <ChangePoke
-    :selectedPoke='userPoke'
+    :selectedPoke="userPoke"
     :pokemon="userPokemon"
     v-if="userPoke && userData.team && showChngPoke"
     @changePokeTo="changePlayingPokemon"
-    />
+  />
 </template>
 
 <script>
 import { getUserData } from '@/utils/auth';
 import { getTrainerData } from '@/utils/crud';
 import battleBgs from "@/assets/data/battleBgs.json";
-import PlayerPanel from './PlayerPanel.vue'; // Import PlayerPanel component
+import PlayerPanel from './PlayerPanel.vue';
 import ChangePoke from './ChangePoke.vue';
 
 export default {
@@ -54,13 +53,21 @@ export default {
     };
   },
   methods: {
-    // Method to get a random battle background
+    // Initialize moves with currentSp if already exists, otherwise use sp value
+    initializeMoves(pokemon) {
+      pokemon.moves.forEach(move => {
+        if (!move.currentSp && move.sp) {
+          move.currentSp = move.sp; // Only initialize if currentSp is missing
+        }
+      });
+    },
+
     getRandomBattleBg() {
       const randomBg = battleBgs[Math.floor(Math.random() * battleBgs.length)];
       return randomBg.link;
     },
 
-    // Save current state to localStorage
+    // Save the game state to localStorage
     saveToLocalStorage() {
       const gameState = {
         userPokemon: this.userPokemon,
@@ -72,7 +79,7 @@ export default {
       localStorage.setItem("PokeSeed_battleState", JSON.stringify(gameState));
     },
 
-    // Restore game state from localStorage
+    // Load the game state from localStorage
     loadFromLocalStorage() {
       const savedState = localStorage.getItem("PokeSeed_battleState");
       if (savedState) {
@@ -82,14 +89,18 @@ export default {
         this.userPokeHealth = gameState.userPokeHealth;
         this.oppPoke = gameState.oppPoke;
         this.oppPokeHealth = gameState.oppPokeHealth;
+
+        // Re-initialize moves with currentSp
+        this.userPokemon.forEach(poke => this.initializeMoves(poke));
+        this.initializeMoves(this.oppPoke);
+
         return true;
       }
       return false;
     },
 
-    // Find the game and load player and opponent data
+    // Find the game and set up opponent and user data
     async findGame() {
-      // Try to load state from localStorage
       const loadedFromLocalStorage = this.loadFromLocalStorage();
 
       if (!loadedFromLocalStorage) {
@@ -109,12 +120,19 @@ export default {
             this.opponent = await getTrainerData(this, player);
             this.oppPoke = this.opponent.team[0];
             this.userPokemon = this.userData.team.map((obj) => {
-              obj.stats.currentHp = obj.stats.hp;
+              // Keep currentHp if it exists, otherwise set it to max hp
+              if (!obj.stats.currentHp) {
+                obj.stats.currentHp = obj.stats.hp;
+              }
+              this.initializeMoves(obj); // Initialize moves with currentSp
               return obj;
             });
             this.userPoke = this.userPokemon[0];
-            this.oppPokeHealth = this.oppPoke.stats.hp;
-            this.userPokeHealth = this.userPoke.stats.hp;
+            this.oppPokeHealth = this.oppPoke.stats.currentHp || this.oppPoke.stats.hp;
+            this.userPokeHealth = this.userPoke.stats.currentHp || this.userPoke.stats.hp;
+
+            // Initialize moves for the opponent's Pokémon as well
+            this.initializeMoves(this.oppPoke);
           }
         }
 
@@ -123,7 +141,17 @@ export default {
       }
     },
 
-    // Method to change the currently playing Pokémon
+    // Method to handle move usage and update currentSp
+    handleMoveUsage(move) {
+      const moveIndex = this.userPoke.moves.findIndex(m => m.name === move.name);
+      if (moveIndex !== -1 && this.userPoke.moves[moveIndex].currentSp > 0) {
+        // Decrement currentSp by 1 when the move is used
+        this.userPoke.moves[moveIndex].currentSp -= 1;
+        this.saveToLocalStorage(); // Save the updated state
+      }
+    },
+
+    // Change the currently playing Pokémon
     changePlayingPokemon(poke) {
       const currentPokeIndex = this.userPokemon.findIndex(
         (p) => p.name === this.userPoke.name
@@ -141,7 +169,7 @@ export default {
       this.showChngPoke = false;
 
       // Update the user's Pokémon health in case it was changed in the UI
-      this.userPokeHealth = this.userPoke.stats.hp;
+      this.userPokeHealth = this.userPoke.stats.currentHp || this.userPoke.stats.hp;
 
       // Save the updated state to localStorage
       this.saveToLocalStorage();
