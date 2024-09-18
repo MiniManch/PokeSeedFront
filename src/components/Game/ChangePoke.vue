@@ -3,7 +3,7 @@
 
         <div class="selectedPoke">
             <img :src="selectedPoke.pokeDexImg" alt="">
-            <div class="stats">
+            <div class="pokeStats">
                 <p>{{selectedPoke.name}}</p>
                 <div class="healthBar">
                     <div class="bar-background">
@@ -15,11 +15,11 @@
         </div>
 
         <div class="availablePoke">
-            <div class="poke" v-for="poke in relevantPoke" :key="poke.name">
+            <div :class="['poke',currentPokemon === poke ? justifyStart : null]" class="poke" v-for="poke in relevantPoke" :key="poke.name">
                 <div class="imgAndStats">
                     <img :src="poke.pokeDexImg" alt="">
 
-                    <div class="stats" v-if="currentPokemon !== poke">
+                    <div class="pokeStats" v-if="currentPokemon !== poke">
                         <p>{{poke.name}}</p>
                         <div class="healthBar">
                             <div class="bar-background">
@@ -36,9 +36,14 @@
                     </div>
                 </div>
 
-                <button class="button" @click="displayMoves(poke)">
-                    {{ currentPokemon === poke ? 'Hide Moves' : 'View Moves' }}
-                </button>
+                <div class="buttons" v-if="poke.stats.currentHp > 0">
+                    <button class="button" @click="displayMoves(poke)">
+                        {{ currentPokemon === poke ? 'Hide Moves' : 'View Moves' }}
+                    </button>
+                    <button class="button" @click="changePokeTo(poke)">
+                       choose {{poke.name}}!
+                    </button>
+                </div>
 
             </div>
         </div>
@@ -60,7 +65,8 @@ export default {
     },
     data() {
         return {
-            currentPokemon: null // Store the currently selected Pokemon for moves
+            currentPokemon: null,
+            justifyStart:'justifyStart'
         };
     },
     computed: {
@@ -92,6 +98,9 @@ export default {
             } else {
                 this.currentPokemon = poke; // Show moves for the selected Pokemon
             }
+        },
+        changePokeTo(poke){
+            this.$emit("changePokeTo",poke)
         }
     },
     components: {
@@ -135,11 +144,15 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    height:25%;
 }
+
 .imgAndStats{
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    padding: relative;
+    height: 100%;
 }
 
 .healthBar {
@@ -152,11 +165,13 @@ export default {
     align-items: center;
     background: grey;
   }
+
   .bar-background > p{
     padding-left: 1vh;
     padding-right: 1vh;
     color: orange;
   }
+
   .bar {
     height: 4vh;
     background-color: green;
@@ -174,18 +189,27 @@ export default {
   
   .move{
     width:fit-content;
-   
   }
-  .stats{
+
+  .pokeStats{
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-  .stats > p {
-    text-transform: uppercase;
 
+  .pokeStats::after{
+    box-shadow: none;
   }
 
+  .pokeStats > p {
+    text-transform: uppercase;
+  }
+  .buttons{
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 3vw;
+  }
   img{
     width:10vw;
     height:20vh;

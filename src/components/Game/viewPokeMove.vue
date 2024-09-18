@@ -2,7 +2,7 @@
   <div class="viewMoveContainer">
     <img :src="getIcon(move)" alt="" class="typeIcon"/>
     <p>{{ move.name }}</p>
-    <div class="stats">
+    <div class="moveStats">
       <div class="stat">
         <img src="../../../public/Images/icons/damage/damage.png" alt="" />
         {{ move.dmg }}
@@ -42,6 +42,7 @@ export default {
   flex-direction: column;
   align-items: flex-start;
   gap: 1vh;
+  height:100%;
 }
 img {
   width: 2vw;
@@ -57,7 +58,7 @@ img {
   gap: 1vh;
   margin-bottom: 1vh;
 }
-.stats {
+.moveStats {
   border: none;
   box-shadow: none;
 }

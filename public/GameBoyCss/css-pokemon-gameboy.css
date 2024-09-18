@@ -2179,7 +2179,7 @@ body {
   min-width: 320px;
   padding: 4em;
   background: #F8F3F8;
-  color: #181010;
+  /* color: #181010; */
   /* image-rendering: pixelated; */
 }
 h1,
