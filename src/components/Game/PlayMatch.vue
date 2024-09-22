@@ -3,21 +3,21 @@
     <!-- Opponent Panel -->
     <PlayerPanel
       :poke="oppPoke"
-      :currentHp="oppPokeHealth"
+      :currentHp="oppPoke.stats.currentHp"
       :isPlayer="false"
       :turn="false"
-      v-if="oppPoke && oppPokeHealth"
+      v-if="oppPoke "
     />
 
     <!-- Player Panel -->
     <PlayerPanel
       :poke="userPoke"
-      :currentHp="userPokeHealth"
+      :currentHp="userPoke.stats.currentHp"
       :isPlayer="true"
       :turn="true"
       @displayChngPoke="showChngPoke = true"
       @moveUsed="handleMoveUsage"
-      v-if="userPoke && userPokeHealth"
+      v-if="userPoke"
     />
 
   </div>
@@ -72,9 +72,9 @@ export default {
       const gameState = {
         userPokemon: this.userPokemon,
         userPoke: this.userPoke,
-        userPokeHealth: this.userPokeHealth,
+        userPokeHealth: this.userPoke.stats.currentHp,
         oppPoke: this.oppPoke,
-        oppPokeHealth: this.oppPokeHealth,
+        oppPokeHealth: this.oppPoke.stats.currentHp,
       };
       localStorage.setItem("PokeSeed_battleState", JSON.stringify(gameState));
     },
@@ -83,12 +83,13 @@ export default {
     loadFromLocalStorage() {
       const savedState = localStorage.getItem("PokeSeed_battleState");
       if (savedState) {
+        console.log('yes state')
         const gameState = JSON.parse(savedState);
         this.userPokemon = gameState.userPokemon;
         this.userPoke = gameState.userPoke;
-        this.userPokeHealth = gameState.userPokeHealth;
+        this.userPoke.stats.currentHp = gameState.userPokeHealth
         this.oppPoke = gameState.oppPoke;
-        this.oppPokeHealth = gameState.oppPokeHealth;
+        this.oppPoke.stats.currentHp = gameState.oppPokeHealth;
 
         // Re-initialize moves with currentSp
         this.userPokemon.forEach(poke => this.initializeMoves(poke));
@@ -118,6 +119,7 @@ export default {
         for (const player of this.match.players) {
           if (player !== this.userData.trainer) {
             this.opponent = await getTrainerData(this, player);
+            console.log(this.opponent)
             this.oppPoke = this.opponent.team[0];
             this.userPokemon = this.userData.team.map((obj) => {
               // Keep currentHp if it exists, otherwise set it to max hp
@@ -128,8 +130,6 @@ export default {
               return obj;
             });
             this.userPoke = this.userPokemon[0];
-            this.oppPokeHealth = this.oppPoke.stats.currentHp || this.oppPoke.stats.hp;
-            this.userPokeHealth = this.userPoke.stats.currentHp || this.userPoke.stats.hp;
 
             // Initialize moves for the opponent's Pokémon as well
             this.initializeMoves(this.oppPoke);
@@ -167,9 +167,6 @@ export default {
 
       // Close the change Pokémon screen
       this.showChngPoke = false;
-
-      // Update the user's Pokémon health in case it was changed in the UI
-      this.userPokeHealth = this.userPoke.stats.currentHp || this.userPoke.stats.hp;
 
       // Save the updated state to localStorage
       this.saveToLocalStorage();

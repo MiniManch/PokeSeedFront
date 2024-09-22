@@ -29,7 +29,7 @@
     <div class="movesList" v-if="isPlayer && showMoves">
       <ul class="framed buttons compact move-options">
         <li v-for="move in poke.moves" :key="move.name">
-          <button class="button">{{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})</button>
+          <button class="button" @click="useMove(move)">{{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})</button>
         </li>
       </ul>
       <button class="button back" @click="closeFightMenu">Back</button>
@@ -81,11 +81,11 @@ export default {
     },
     openChngPoke() {
       this.$emit("displayChngPoke");
-    }
+    },
+    useMove(move){
+      this.$emit('moveUsed',move);
+    } 
   },
-  mounted(){
-    console.log(this.poke)
-  }
 };
 </script>
 

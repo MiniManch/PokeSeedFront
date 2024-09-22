@@ -32,7 +32,7 @@ import { fetchTrainerDataAndAddToList } from '@/utils/crud'; // Import the new f
 export default {
   data() {
     return {
-      tournament: JSON.parse(localStorage.getItem('tournament')) || null,
+      tournament: JSON.parse(localStorage.getItem('PokeSeed_tournamentTree')) || null,
       userData: null,
       trainerData: [], // Store trainer data as an array
       error: null,
@@ -81,6 +81,7 @@ export default {
         });
         this.tournament = response.data;
         localStorage.setItem('PokeSeed_tournamentTree', JSON.stringify(this.tournament));
+        localStorage.removeItem("PokeSeed_battleState");
 
         // Fetch trainer data after creating the tournament
         await this.fetchTrainerDataForTournament();
