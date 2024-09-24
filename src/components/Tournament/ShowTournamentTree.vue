@@ -27,12 +27,13 @@
 <script>
 import axios from 'axios';
 import { getUserData } from '@/utils/auth';
-import { fetchTrainerDataAndAddToList } from '@/utils/crud'; // Import the new function
+import { fetchTrainerDataAndAddToList } from '@/utils/crud'; 
 
 export default {
   data() {
     return {
-      tournament: JSON.parse(localStorage.getItem('PokeSeed_tournamentTree')) || null,
+      // tournament: JSON.parse(localStorage.getItem('PokeSeed_tournamentTree')) || null,
+      tournament:  null,
       userData: null,
       trainerData: [], // Store trainer data as an array
       error: null,

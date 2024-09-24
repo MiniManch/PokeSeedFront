@@ -2,7 +2,7 @@
     <div class="changePoke">
 
         <div class="selectedPoke">
-            <img :src="selectedPoke.pokeDexImg" alt="">
+            <img :src="selectedPoke.pokeDexImg" @error="useFrontSprite(selectedPoke)" alt="">
             <div class="pokeStats">
                 <p>{{selectedPoke.name}}</p>
                 <div class="healthBar">
@@ -17,7 +17,7 @@
         <div class="availablePoke">
             <div :class="['poke',currentPokemon === poke ? justifyStart : null]" class="poke" v-for="poke in relevantPoke" :key="poke.name">
                 <div class="imgAndStats">
-                    <img :src="poke.pokeDexImg" alt="">
+                    <img :src="poke.pokeDexImg" @error="useFrontSprite(poke)" alt="">
 
                     <div class="pokeStats" v-if="currentPokemon !== poke">
                         <p>{{poke.name}}</p>
@@ -77,13 +77,12 @@ export default {
     methods: {
         widthOfHealthBar(poke) {
             if (poke.stats.currentHp > 0) {
-                return Math.floor((poke.stats.currentHp / poke.stats.hp) * 100)
+                return Math.floor((poke.stats.currentHp / poke.stats.hp) * 100);
             }
             return 0;
         },
         healthBarColor(poke) {
-            console.log(poke)
-            const percentage = (poke.stats.hp / poke.stats.currentHp) * 100;
+            const percentage = (poke.stats.currentHp / poke.stats.hp) * 100;
             if (percentage > 60) {
                 return "green";
             } else if (percentage > 30) {
@@ -93,15 +92,18 @@ export default {
             }
         },
         displayMoves(poke) {
-            // Toggle moves display for the clicked Pokemon
             if (this.currentPokemon === poke) {
-                this.currentPokemon = null; // Hide moves if already selected
+                this.currentPokemon = null;
             } else {
-                this.currentPokemon = poke; // Show moves for the selected Pokemon
+                this.currentPokemon = poke;
             }
         },
-        changePokeTo(poke){
-            this.$emit("changePokeTo",poke)
+        changePokeTo(poke) {
+            this.$emit("changePokeTo", poke);
+        },
+        useFrontSprite(poke) {
+            // Fallback to frontSprite when pokeDexImg fails
+            poke.pokeDexImg = poke.frontSprite;
         }
     },
     components: {

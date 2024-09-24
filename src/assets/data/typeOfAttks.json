@@ -1,0 +1,53 @@
+{
+    "Fire": {
+        "attack_type": "Special Attack"
+    },
+    "Water": {
+        "attack_type": "Special Attack"
+    },
+    "Grass": {
+        "attack_type": "Special Attack"
+    },
+    "Electric": {
+        "attack_type": "Special Attack"
+    },
+    "Normal": {
+        "attack_type": "Normal Attack"
+    },
+    "Fighting": {
+        "attack_type": "Normal Attack"
+    },
+    "Psychic": {
+        "attack_type": "Special Attack"
+    },
+    "Rock": {
+        "attack_type": "Normal Attack"
+    },
+    "Ground": {
+        "attack_type": "Normal Attack"
+    },
+    "Ghost": {
+        "attack_type": "Special Attack"
+    },
+    "Ice": {
+        "attack_type": "Special Attack"
+    },
+    "Steel": {
+        "attack_type": "Normal Attack"
+    },
+    "Fairy": {
+        "attack_type": "Special Attack"
+    },
+    "Bug": {
+        "attack_type": "Normal Attack"
+    },
+    "Dragon": {
+        "attack_type": "Special Attack"
+    },
+    "Dark": {
+        "attack_type": "Normal Attack"
+    },
+    "Flying": {
+        "attack_type": "Normal Attack"
+    }
+}

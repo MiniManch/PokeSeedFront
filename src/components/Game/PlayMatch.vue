@@ -32,7 +32,10 @@
 <script>
 import { getUserData } from '@/utils/auth';
 import { getTrainerData } from '@/utils/crud';
+
 import battleBgs from "@/assets/data/battleBgs.json";
+import attackTypes from "@/assets/data/typeOfAttks.json";
+
 import PlayerPanel from './PlayerPanel.vue';
 import ChangePoke from './ChangePoke.vue';
 
@@ -119,8 +122,9 @@ export default {
         for (const player of this.match.players) {
           if (player !== this.userData.trainer) {
             this.opponent = await getTrainerData(this, player);
-            console.log(this.opponent)
             this.oppPoke = this.opponent.team[0];
+            console.log(this.opponent)
+            this.userPokemon = this.userData.team;
             this.userPokemon = this.userData.team.map((obj) => {
               // Keep currentHp if it exists, otherwise set it to max hp
               if (!obj.stats.currentHp) {
@@ -140,15 +144,57 @@ export default {
         this.saveToLocalStorage();
       }
     },
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
 
+    playMove(move, pokemon) {
+      // Calculate the chance of the move actually happening
+      const chanceOfMove = Math.floor(Math.random() * 101) > move.acc;
+      
+      // Capitalize the first letter of the move type to match the keys in the JSON
+      const capitalizedType = this.capitalizeFirstLetter(move.type);
+      
+      // Get the attack type from the imported data
+      const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
+
+      // Calculate damage of the move (uncomment and adjust if needed)
+      const dmgOfMove = (move.dmg / 100) * pokemon.stats.str;
+
+      if (chanceOfMove) {
+        console.log(dmgOfMove, specialOrNormalAttack);
+        
+        // Further calculations based on attack type can be added here
+        // For example:
+        // if (specialOrNormalAttack === 'Special Attack') {
+        //     // Handle special attack logic
+        // } else {
+        //     // Handle normal attack logic
+        // }
+      } else {
+        console.log('Move missed!');
+      }
+      
+      // Calculate chance of effect
+      // Calculate effect of move
+    },
     // Method to handle move usage and update currentSp
     handleMoveUsage(move) {
+      // check if move has sp left and allow to play it if it does, if not return false
       const moveIndex = this.userPoke.moves.findIndex(m => m.name === move.name);
-      if (moveIndex !== -1 && this.userPoke.moves[moveIndex].currentSp > 0) {
+      const canBePlayed = moveIndex !== -1 && this.userPoke.moves[moveIndex].currentSp > 0;
+
+      if(!canBePlayed){
+        return false;
+      }
+      else{
         // Decrement currentSp by 1 when the move is used
-        this.userPoke.moves[moveIndex].currentSp -= 1;
+        // this.userPoke.moves[moveIndex].currentSp -= 1;
         this.saveToLocalStorage(); // Save the updated state
       }
+      this.playMove(move,this.userPoke)
+      // run move
+
     },
 
     // Change the currently playing Pokémon
@@ -176,6 +222,7 @@ export default {
     this.battleBg = this.getRandomBattleBg();
     await getUserData(this);
     await this.findGame();
+    
   },
   components: {
     PlayerPanel,

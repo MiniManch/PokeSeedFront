@@ -127,7 +127,10 @@ export default {
         this.showButton = true;
       }
 
-      if (this.userData.team.includes(this.pokemon.name)) {
+      // Check if a Pokémon with the same name exists in the team
+      const foundPokemon = this.userData.team.find(poke => poke.name === this.pokemon.name);
+
+      if (foundPokemon) {
         this.alreadyInTeam = true;
         this.replaceButton = false;
       } else if (this.userData.team.length >= 4) {
@@ -136,7 +139,8 @@ export default {
         this.replaceButton = false;
         this.alreadyInTeam = false;
       }
-      this.teamFull = this.userData.team.length == 4;
+      
+      this.teamFull = this.userData.team.length === 4;
     },
     async addToTeam() {
       try {
@@ -203,6 +207,7 @@ export default {
       this.error = "Error fetching data: " + error.message;
       console.error(this.error);
     }
+    console.log(this.pokemon)
   },
 };
 </script>
