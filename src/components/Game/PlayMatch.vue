@@ -123,7 +123,6 @@ export default {
           if (player !== this.userData.trainer) {
             this.opponent = await getTrainerData(this, player);
             this.oppPoke = this.opponent.team[0];
-            console.log(this.opponent)
             this.userPokemon = this.userData.team;
             this.userPokemon = this.userData.team.map((obj) => {
               // Keep currentHp if it exists, otherwise set it to max hp
@@ -150,7 +149,7 @@ export default {
 
     playMove(move, pokemon) {
       // Calculate the chance of the move actually happening
-      const chanceOfMove = Math.floor(Math.random() * 101) > move.acc;
+      const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
       
       // Capitalize the first letter of the move type to match the keys in the JSON
       const capitalizedType = this.capitalizeFirstLetter(move.type);
@@ -159,7 +158,7 @@ export default {
       const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
 
       // Calculate damage of the move (uncomment and adjust if needed)
-      const dmgOfMove = (move.dmg / 100) * pokemon.stats.str;
+      const dmgOfMove = (move.dmg / 100) * (specialOrNormalAttack  === "Normal" ? pokemon.stats.str : pokemon.stats.spAtk);
 
       if (chanceOfMove) {
         console.log(dmgOfMove, specialOrNormalAttack);
@@ -210,7 +209,7 @@ export default {
 
       // Set the new selected Pokémon as the active one
       this.userPoke = poke;
-
+      console.log(this.userPoke)
       // Close the change Pokémon screen
       this.showChngPoke = false;
 
