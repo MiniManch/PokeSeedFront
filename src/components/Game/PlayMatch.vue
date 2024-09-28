@@ -6,7 +6,7 @@
       :currentHp="oppPoke.stats.currentHp"
       :isPlayer="false"
       :turn="false"
-      v-if="oppPoke "
+      v-if="oppPoke"
     />
 
     <!-- Player Panel -->
@@ -16,10 +16,9 @@
       :isPlayer="true"
       :turn="true"
       @displayChngPoke="showChngPoke = true"
-      @moveUsed="handleMoveUsage"
+      @moveUsed="handleMoveUsage(this.userPoke,this.oppPoke)"
       v-if="userPoke"
     />
-
   </div>
   <ChangePoke
     :selectedPoke="userPoke"
@@ -30,14 +29,14 @@
 </template>
 
 <script>
-import { getUserData } from '@/utils/auth';
-import { getTrainerData } from '@/utils/crud';
+import { getUserData } from "@/utils/auth";
+import { getTrainerData } from "@/utils/crud";
 
 import battleBgs from "@/assets/data/battleBgs.json";
 import attackTypes from "@/assets/data/typeOfAttks.json";
 
-import PlayerPanel from './PlayerPanel.vue';
-import ChangePoke from './ChangePoke.vue';
+import PlayerPanel from "./PlayerPanel.vue";
+import ChangePoke from "./ChangePoke.vue";
 
 export default {
   data() {
@@ -53,12 +52,13 @@ export default {
       userPokeHealth: null,
       showChngPoke: false,
       userPokemon: null,
+      opponentPokemon: null, // Added opponent's Pokémon array
     };
   },
   methods: {
     // Initialize moves with currentSp if already exists, otherwise use sp value
     initializeMoves(pokemon) {
-      pokemon.moves.forEach(move => {
+      pokemon.moves.forEach((move) => {
         if (!move.currentSp && move.sp) {
           move.currentSp = move.sp; // Only initialize if currentSp is missing
         }
@@ -78,24 +78,29 @@ export default {
         userPokeHealth: this.userPoke.stats.currentHp,
         oppPoke: this.oppPoke,
         oppPokeHealth: this.oppPoke.stats.currentHp,
+        oppPokemon: this.opponentPokemon, // Save opponent's full team
       };
       localStorage.setItem("PokeSeed_battleState", JSON.stringify(gameState));
     },
 
     // Load the game state from localStorage
-    loadFromLocalStorage() {
+    async loadFromLocalStorage() {
       const savedState = localStorage.getItem("PokeSeed_battleState");
       if (savedState) {
-        console.log('yes state')
         const gameState = JSON.parse(savedState);
+
+        // Load the user's Pokémon and health
         this.userPokemon = gameState.userPokemon;
         this.userPoke = gameState.userPoke;
-        this.userPoke.stats.currentHp = gameState.userPokeHealth
+        this.userPoke.stats.currentHp = gameState.userPokeHealth;
+
+        // Load the opponent's Pokémon and health
+        this.opponentPokemon = gameState.oppPokemon;
         this.oppPoke = gameState.oppPoke;
         this.oppPoke.stats.currentHp = gameState.oppPokeHealth;
 
-        // Re-initialize moves with currentSp
-        this.userPokemon.forEach(poke => this.initializeMoves(poke));
+        // Initialize moves for both user and opponent Pokémon
+        this.userPokemon.forEach((poke) => this.initializeMoves(poke));
         this.initializeMoves(this.oppPoke);
 
         return true;
@@ -105,9 +110,10 @@ export default {
 
     // Find the game and set up opponent and user data
     async findGame() {
-      const loadedFromLocalStorage = this.loadFromLocalStorage();
+      const loadedFromLocalStorage = await this.loadFromLocalStorage();
 
-      if (!loadedFromLocalStorage) {
+      // Only fetch the opponent if no opponent data was loaded
+      if (!loadedFromLocalStorage || !this.opponent) {
         let games = [];
         for (const match of this.tournamentTree.matches) {
           if (match.players.includes(this.userData.trainer)) {
@@ -122,78 +128,59 @@ export default {
         for (const player of this.match.players) {
           if (player !== this.userData.trainer) {
             this.opponent = await getTrainerData(this, player);
-            this.oppPoke = this.opponent.team[0];
-            this.userPokemon = this.userData.team;
+            this.opponentPokemon = this.opponent.team; // Set opponent's full team
+            this.oppPoke = this.opponentPokemon[0];
+
+            // Initialize moves for both user and opponent Pokémon
             this.userPokemon = this.userData.team.map((obj) => {
-              // Keep currentHp if it exists, otherwise set it to max hp
               if (!obj.stats.currentHp) {
                 obj.stats.currentHp = obj.stats.hp;
               }
-              this.initializeMoves(obj); // Initialize moves with currentSp
+              this.initializeMoves(obj);
               return obj;
             });
             this.userPoke = this.userPokemon[0];
-
-            // Initialize moves for the opponent's Pokémon as well
             this.initializeMoves(this.oppPoke);
           }
         }
 
-        // Save the initialized game state to localStorage
         this.saveToLocalStorage();
       }
     },
+
     capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
 
-    playMove(move, pokemon) {
-      // Calculate the chance of the move actually happening
+    playMove(move, pokemon,opponent) {
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
-      
-      // Capitalize the first letter of the move type to match the keys in the JSON
       const capitalizedType = this.capitalizeFirstLetter(move.type);
-      
-      // Get the attack type from the imported data
       const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
-
-      // Calculate damage of the move (uncomment and adjust if needed)
-      const dmgOfMove = (move.dmg / 100) * (specialOrNormalAttack  === "Normal" ? pokemon.stats.str : pokemon.stats.spAtk);
+      const dmgOfMove =
+        (move.dmg / 100) *
+        (specialOrNormalAttack === "Normal"
+          ? pokemon.stats.str
+          : pokemon.stats.spAtk);
 
       if (chanceOfMove) {
         console.log(dmgOfMove, specialOrNormalAttack);
-        
-        // Further calculations based on attack type can be added here
-        // For example:
-        // if (specialOrNormalAttack === 'Special Attack') {
-        //     // Handle special attack logic
-        // } else {
-        //     // Handle normal attack logic
-        // }
+        console.log(opponent)
       } else {
-        console.log('Move missed!');
+        console.log("Move missed!");
       }
-      
-      // Calculate chance of effect
-      // Calculate effect of move
     },
-    // Method to handle move usage and update currentSp
-    handleMoveUsage(move) {
-      // check if move has sp left and allow to play it if it does, if not return false
-      const moveIndex = this.userPoke.moves.findIndex(m => m.name === move.name);
-      const canBePlayed = moveIndex !== -1 && this.userPoke.moves[moveIndex].currentSp > 0;
 
-      if(!canBePlayed){
+    handleMoveUsage(move,pokemon,opponent) {
+      const moveIndex = this.userPoke.moves.findIndex((m) => m.name === move.name);
+      const canBePlayed =
+        moveIndex !== -1 && this.userPoke.moves[moveIndex].currentSp > 0;
+
+      if (!canBePlayed) {
         return false;
-      }
-      else{
-        // Decrement currentSp by 1 when the move is used
-        // this.userPoke.moves[moveIndex].currentSp -= 1;
+      } else {
         this.saveToLocalStorage(); // Save the updated state
       }
-      this.playMove(move,this.userPoke)
-      // run move
-
+      this.playMove(move, pokemon,opponent);
     },
 
     // Change the currently playing Pokémon
@@ -209,8 +196,6 @@ export default {
 
       // Set the new selected Pokémon as the active one
       this.userPoke = poke;
-      console.log(this.userPoke)
-      // Close the change Pokémon screen
       this.showChngPoke = false;
 
       // Save the updated state to localStorage
@@ -221,7 +206,7 @@ export default {
     this.battleBg = this.getRandomBattleBg();
     await getUserData(this);
     await this.findGame();
-    
+    console.log(this.opponent)
   },
   components: {
     PlayerPanel,
@@ -229,6 +214,7 @@ export default {
   },
 };
 </script>
+
 
 <style>
 .pokeBattle {

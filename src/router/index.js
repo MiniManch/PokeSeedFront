@@ -5,7 +5,7 @@ import LoginComp from '../components/User/UserLogin.vue';
 import RegisterComp from '../components/User/UserSignUp.vue';
 import ViewPokemon from '../components/Poke/ViewPokemon.vue';
 import PokemonProfile from '../components/Poke/PokemonProfile.vue';
-import PlayGame from '../components/Game/PlayMatch.vue';
+import PlayMatch from '../components/Game/PlayMatch.vue';
 import playerProfile from '../components/Game/GameProfile.vue';
 import ShowTournamentTree from '../components/Tournament/ShowTournamentTree.vue';
 
@@ -22,8 +22,8 @@ const routes = [
     { path: '/pokedex', component: ViewPokemon, name: 'viewPokemon' },
     {
         path: '/game',
-        component: PlayGame,
-        name: 'PlayGame'
+        component: PlayMatch,
+        name: 'PlayMatch'
     },
     {
         path: '/pokemon/profile/:name',

@@ -1,4 +1,4 @@
- \<template>
+ <template>
     <div>
         <!-- Add button to open trainers to choose from, also display current team and trainer -->
         <Trainers @select="selectTrainer" v-if="userData && userData.trainer == '' " />\
