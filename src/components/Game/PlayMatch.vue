@@ -16,7 +16,7 @@
       :isPlayer="true"
       :turn="true"
       @displayChngPoke="showChngPoke = true"
-      @moveUsed="handleMoveUsage(this.userPoke,this.oppPoke)"
+      @moveUsed="handleMoveUsage"
       v-if="userPoke"
     />
   </div>
@@ -40,21 +40,25 @@ import ChangePoke from "./ChangePoke.vue";
 
 export default {
   data() {
+    const savedState = localStorage.getItem("PokeSeed_battleState");
+    let gameState = savedState ? JSON.parse(savedState) : null;
+
     return {
       userData: JSON.parse(localStorage.getItem("PokeSeed_userData")),
       tournamentTree: JSON.parse(localStorage.getItem("PokeSeed_tournamentTree")),
-      opponent: null,
+      opponent: gameState ? gameState.opponent : null, // Use opponent from saved gameState if it exists
       match: null,
-      oppPoke: null,
-      userPoke: null,
+      oppPoke: gameState ? gameState.oppPoke : null, 
+      userPoke: gameState ? gameState.userPoke : null,
       battleBg: null,
-      oppPokeHealth: null,
-      userPokeHealth: null,
+      oppPokeHealth: gameState ? gameState.oppPokeHealth : null,
+      userPokeHealth: gameState ? gameState.userPokeHealth : null,
       showChngPoke: false,
-      userPokemon: null,
-      opponentPokemon: null, // Added opponent's Pokémon array
+      userPokemon: gameState ? gameState.userPokemon : null,
+      opponentPokemon: gameState ? gameState.oppPokemon : null,
     };
   },
+
   methods: {
     // Initialize moves with currentSp if already exists, otherwise use sp value
     initializeMoves(pokemon) {
@@ -78,7 +82,8 @@ export default {
         userPokeHealth: this.userPoke.stats.currentHp,
         oppPoke: this.oppPoke,
         oppPokeHealth: this.oppPoke.stats.currentHp,
-        oppPokemon: this.opponentPokemon, // Save opponent's full team
+        oppPokemon: this.opponentPokemon,
+        opponent: this.opponent, // Save the opponent object
       };
       localStorage.setItem("PokeSeed_battleState", JSON.stringify(gameState));
     },
@@ -94,7 +99,8 @@ export default {
         this.userPoke = gameState.userPoke;
         this.userPoke.stats.currentHp = gameState.userPokeHealth;
 
-        // Load the opponent's Pokémon and health
+        // Load the opponent's Pokémon, health, and team
+        this.opponent = gameState.opponent; // Load the saved opponent object
         this.opponentPokemon = gameState.oppPokemon;
         this.oppPoke = gameState.oppPoke;
         this.oppPoke.stats.currentHp = gameState.oppPokeHealth;
@@ -103,17 +109,18 @@ export default {
         this.userPokemon.forEach((poke) => this.initializeMoves(poke));
         this.initializeMoves(this.oppPoke);
 
-        return true;
+        return true; // Return true if loading from localStorage was successful
       }
-      return false;
+      return false; // No saved state, return false
     },
 
     // Find the game and set up opponent and user data
     async findGame() {
       const loadedFromLocalStorage = await this.loadFromLocalStorage();
-
+      console.log(loadedFromLocalStorage)
       // Only fetch the opponent if no opponent data was loaded
       if (!loadedFromLocalStorage || !this.opponent) {
+        console.log('failed to load from local storage')
         let games = [];
         for (const match of this.tournamentTree.matches) {
           if (match.players.includes(this.userData.trainer)) {
@@ -152,37 +159,64 @@ export default {
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
 
-    playMove(move, pokemon,opponent) {
+    playMove(move, attackingPoke, defendingPoke, isPlayerAttacking) {
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
       const capitalizedType = this.capitalizeFirstLetter(move.type);
       const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
       const dmgOfMove =
         (move.dmg / 100) *
         (specialOrNormalAttack === "Normal"
-          ? pokemon.stats.str
-          : pokemon.stats.spAtk);
+          ? attackingPoke.stats.str
+          : attackingPoke.stats.spAtk);
 
       if (chanceOfMove) {
-        console.log(dmgOfMove, specialOrNormalAttack);
-        console.log(opponent)
+        const health_after = defendingPoke.stats.currentHp - dmgOfMove;
+        defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
+
+        // Update the current Pokémon's health in the entire team (user or opponent)
+        if (isPlayerAttacking) {
+          const oppPokeIndex = this.opponentPokemon.findIndex(
+            (poke) => poke.name === defendingPoke.name
+          );
+          if (oppPokeIndex !== -1) {
+            this.opponentPokemon[oppPokeIndex].stats.currentHp = defendingPoke.stats.currentHp;
+          }
+        } else {
+          const userPokeIndex = this.userPokemon.findIndex(
+            (poke) => poke.name === defendingPoke.name
+          );
+          if (userPokeIndex !== -1) {
+            this.userPokemon[userPokeIndex].stats.currentHp = defendingPoke.stats.currentHp;
+          }
+        }
       } else {
         console.log("Move missed!");
       }
+
+      this.saveToLocalStorage(); // Save the updated state
     },
 
-    handleMoveUsage(move,pokemon,opponent) {
-      const moveIndex = this.userPoke.moves.findIndex((m) => m.name === move.name);
-      const canBePlayed =
-        moveIndex !== -1 && this.userPoke.moves[moveIndex].currentSp > 0;
+    handleMoveUsage(move, user) {
+    const isPlayer = user === 'user';
+    const moveIndex = this.userPoke.moves.findIndex((m) => m.name === move.name);
+    const canBePlayed =
+      moveIndex !== -1 && this.userPoke.moves[moveIndex].currentSp > 0;
 
-      if (!canBePlayed) {
-        return false;
+    if (!canBePlayed) {
+      return false;
+    } else {
+      if (isPlayer) {
+        this.playMove(move, this.userPoke, this.oppPoke, true);  // Player attacking
       } else {
-        this.saveToLocalStorage(); // Save the updated state
+        this.playMove(move, this.oppPoke, this.userPoke, false); // Opponent attacking
       }
-      this.playMove(move, pokemon,opponent);
-    },
+    }
 
+    this.saveToLocalStorage(); // Save the updated state
+  },
+    // checkPokeAndChange(poke,player){
+      
+    // },
     // Change the currently playing Pokémon
     changePlayingPokemon(poke) {
       const currentPokeIndex = this.userPokemon.findIndex(
@@ -205,8 +239,14 @@ export default {
   async mounted() {
     this.battleBg = this.getRandomBattleBg();
     await getUserData(this);
-    await this.findGame();
-    console.log(this.opponent)
+
+    // If no saved game state is found, proceed with loading the game
+    if (!this.oppPoke || !this.opponent) {
+      await this.findGame();
+    } else {
+      console.log("Loaded opponent from localStorage:", this.opponent);
+    }
+    console.log(JSON.parse(localStorage.getItem("PokeSeed_battleState")));
   },
   components: {
     PlayerPanel,

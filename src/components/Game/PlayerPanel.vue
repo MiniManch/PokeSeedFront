@@ -83,7 +83,7 @@ export default {
       this.$emit("displayChngPoke");
     },
     useMove(move){
-      this.$emit('moveUsed',move);
+      this.$emit('moveUsed',move,'user');
     } 
   },
 };
