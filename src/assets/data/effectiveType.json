@@ -1,0 +1,71 @@
+{
+    "Fire": {
+        "super_effective": ["Grass", "Ice", "Bug"],
+        "not_effective": ["Water", "Rock", "Fire"]
+    },
+    "Water": {
+        "super_effective": ["Fire", "Ground", "Rock"],
+        "not_effective": ["Water", "Grass", "Dragon"]
+    },
+    "Grass": {
+        "super_effective": ["Water", "Ground", "Rock"],
+        "not_effective": ["Fire", "Grass", "Flying"]
+    },
+    "Electric": {
+        "super_effective": ["Water", "Flying"],
+        "not_effective": ["Ground", "Electric", "Grass"]
+    },
+    "Normal": {
+        "super_effective": [],
+        "not_effective": ["Rock", "Steel", "Ghost"]
+    },
+    "Fighting": {
+        "super_effective": ["Normal", "Rock", "Steel"],
+        "not_effective": ["Flying", "Psychic", "Fairy"]
+    },
+    "Psychic": {
+        "super_effective": ["Fighting", "Poison"],
+        "not_effective": ["Dark", "Psychic", "Steel"]
+    },
+    "Rock": {
+        "super_effective": ["Fire", "Flying", "Bug"],
+        "not_effective": ["Fighting", "Ground", "Steel"]
+    },
+    "Ground": {
+        "super_effective": ["Fire", "Electric", "Poison"],
+        "not_effective": ["Flying", "Grass", "Bug"]
+    },
+    "Ghost": {
+        "super_effective": ["Psychic", "Ghost"],
+        "not_effective": ["Normal", "Dark"]
+    },
+    "Ice": {
+        "super_effective": ["Dragon", "Flying", "Ground"],
+        "not_effective": ["Fire", "Steel", "Water"]
+    },
+    "Steel": {
+        "super_effective": ["Ice", "Rock", "Fairy"],
+        "not_effective": ["Fire", "Water", "Electric"]
+    },
+    "Fairy": {
+        "super_effective": ["Fighting", "Dragon", "Dark"],
+        "not_effective": ["Fire", "Poison", "Steel"]
+    },
+    "Bug": {
+        "super_effective": ["Grass", "Psychic", "Dark"],
+        "not_effective": ["Fire", "Flying", "Rock"]
+    },
+    "Dragon": {
+        "super_effective": ["Dragon"],
+        "not_effective": ["Fairy", "Steel"]
+    },
+    "Dark": {
+        "super_effective": ["Psychic", "Ghost"],
+        "not_effective": ["Fairy", "Fighting", "Dark"]
+    },
+    "Flying": {
+        "super_effective": ["Grass", "Fighting", "Bug"],
+        "not_effective": ["Electric", "Rock", "Steel"]
+    }
+}
+
