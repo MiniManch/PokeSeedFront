@@ -165,43 +165,19 @@ export default {
         const health_after = defendingPoke.stats.currentHp - dmgOfMove;
         defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
 
-        if (isPlayerAttacking) {
-          const oppPokeIndex = this.opponentPokemon.findIndex(
-            (poke) => poke.name === defendingPoke.name
-          );
-          if (oppPokeIndex !== -1) {
-            this.opponentPokemon[oppPokeIndex].stats.currentHp =
-              defendingPoke.stats.currentHp;
-          }
+        console.log(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
 
-          if (!this.handleFaint(defendingPoke, "opponent")) {
-            console.log("Battle ended - all opponent Pokémon fainted.");
-            return false;
-          } else if (defendingPoke.stats.currentHp === 0) {
-            return true; // Player keeps the turn
-          }
-        } else {
-          const userPokeIndex = this.userPokemon.findIndex(
-            (poke) => poke.name === defendingPoke.name
-          );
-          if (userPokeIndex !== -1) {
-            this.userPokemon[userPokeIndex].stats.currentHp =
-              defendingPoke.stats.currentHp;
-          }
-
-          if (!this.handleFaint(defendingPoke, "user")) {
-            console.log("Battle ended - all user Pokémon fainted.");
-            return false;
-          } else if (defendingPoke.stats.currentHp === 0) {
-            return true; // Opponent keeps the turn
-          }
+        if (isPlayerAttacking && defendingPoke.stats.currentHp === 0) {
+          console.log(`${defendingPoke.name} fainted!`);
+          // Handle faint logic in `handleMoveUsage`
+          return true;
         }
       } else {
-        console.log("Move missed!");
+        console.log(`${attackingPoke.name} used ${move.name}, but it missed!`);
       }
-
-      this.saveToLocalStorage();
-      return true; // Switch turns if no faint
+      
+      // No faint occurred, return false to indicate no faint
+      return false;
     },
 
     handleMoveUsage(move, user) {
@@ -213,39 +189,22 @@ export default {
       const canBePlayed = moveIndex !== -1 && attackerPoke.moves[moveIndex].currentSp > 0;
 
       if (!canBePlayed) {
+        console.log(`${attackerPoke.name} cannot use ${move.name} due to insufficient SP.`);
         return false;
-      } else {
-        const baseDamage = move.dmg;
-        const finalDamage = this.calculateDamage(
-          baseDamage,
-          move.type,
-          defenderPoke.type
-        );
-
-        const battleContinues = this.playMove(move, attackerPoke, defenderPoke, isPlayer);
-        if (!battleContinues) return;
-
-        defenderPoke.stats.currentHp -= finalDamage;
-        console.log(
-          `${attackerPoke.name} used ${move.name}. It dealt ${finalDamage} damage!`
-        );
-
-        if (defenderPoke.stats.currentHp <= 0) {
-          console.log(`${defenderPoke.name} fainted!`);
-          if (isPlayer) {
-            this.handleFaint(defenderPoke, "opponent");
-          } else {
-            this.handleFaint(defenderPoke, "user");
-          }
-        } else {
-          console.log(
-            `${defenderPoke.name} survived with ${defenderPoke.stats.currentHp} HP.`
-          );
-          this.switchTurn();
-        }
-
-        this.saveToLocalStorage();
       }
+
+      const battleContinues = this.playMove(move, attackerPoke, defenderPoke, isPlayer);
+      console.log(battleContinues);
+
+      if (defenderPoke.stats.currentHp <= 0) {
+        console.log(`${defenderPoke.name} fainted!`);
+        this.handleFaint(defenderPoke, isPlayer ? "opponent" : "user");
+      } else {
+        // Only switch turns if no faint occurred
+        this.switchTurn();
+      }
+
+      this.saveToLocalStorage();
     },
 
     calculateDamage(baseDamage, moveType, oppPokeType) {
@@ -278,22 +237,24 @@ export default {
     },
 
     handleOpponentTurn() {
+      console.log(this.turn ,'inside handleopponentTurn');
       if (this.turn !== "opponent") return;
-      console.log('oponent turn')
+
       const randomMoveIndex = Math.floor(Math.random() * this.oppPoke.moves.length);
       const chosenMove = this.oppPoke.moves[randomMoveIndex];
 
+      console.log(`Opponent's ${this.oppPoke.name} is using ${chosenMove.name}`);
+
       const moveResult = this.playMove(chosenMove, this.oppPoke, this.userPoke, false);
+
       if (!moveResult) {
-        console.log("Opponent lost the battle.");
-      } else if (!chosenMove.currentSp || chosenMove.currentSp <= 0) {
-        console.log(chosenMove)
-        console.log("Opponent can't make a move.");
+        console.log(`Opponent's move ${chosenMove.name} missed!`);
+      } else {
+        console.log(`${this.userPoke.name} now has ${this.userPoke.stats.currentHp} HP left.`);
       }
     },
 
     switchTurn() {
-      console.log(this.turn);
       this.turn = this.turn === "user" ? "opponent" : "user";
       if (this.turn === "opponent") this.handleOpponentTurn();
     },
