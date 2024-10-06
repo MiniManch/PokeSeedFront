@@ -63,13 +63,13 @@ export default {
 
   methods: {
     // Initialize moves with currentSp if already exists, otherwise use sp value
-    initializeMoves(pokemon) {
-      pokemon.moves.forEach((move) => {
-        if (!move.currentSp && move.sp) {
-          move.currentSp = move.sp; // Only initialize if currentSp is missing
-        }
-      });
-    },
+    // initializeMoves(pokemon) {
+    //   pokemon.moves.forEach((move) => {
+    //     if (!move.currentSp && move.sp) {
+    //       move.currentSp = move.sp; // Only initialize if currentSp is missing
+    //     }
+    //   });
+    // },
 
     getRandomBattleBg() {
       const randomBg = battleBgs[Math.floor(Math.random() * battleBgs.length)];
@@ -103,8 +103,8 @@ export default {
         this.oppPoke = gameState.oppPoke;
         this.oppPoke.stats.currentHp = gameState.oppPokeHealth;
 
-        this.userPokemon.forEach((poke) => this.initializeMoves(poke));
-        this.initializeMoves(this.oppPoke);
+        // this.userPokemon.forEach((poke) => this.initializeMoves(poke));
+        // this.initializeMoves(this.oppPoke);
 
         return true;
       }
@@ -135,11 +135,11 @@ export default {
               if (!obj.stats.currentHp) {
                 obj.stats.currentHp = obj.stats.hp;
               }
-              this.initializeMoves(obj);
+              // this.initializeMoves(obj);
               return obj;
             });
             this.userPoke = this.userPokemon[0];
-            this.initializeMoves(this.oppPoke);
+            // this.initializeMoves(this.oppPoke);
           }
         }
 
@@ -151,7 +151,7 @@ export default {
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
 
-    playMove(move, attackingPoke, defendingPoke, isPlayerAttacking) {
+    playMove(move, attackingPoke, defendingPoke) {
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
       const capitalizedType = this.capitalizeFirstLetter(move.type);
       const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
@@ -167,17 +167,17 @@ export default {
 
         console.log(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
 
-        if (isPlayerAttacking && defendingPoke.stats.currentHp === 0) {
-          console.log(`${defendingPoke.name} fainted!`);
-          // Handle faint logic in `handleMoveUsage`
-          return true;
-        }
+        return {
+          moveHit: true,
+          fainted: defendingPoke.stats.currentHp === 0
+        };
       } else {
         console.log(`${attackingPoke.name} used ${move.name}, but it missed!`);
+        return {
+          moveHit: false,
+          fainted: false
+        };
       }
-      
-      // No faint occurred, return false to indicate no faint
-      return false;
     },
 
     handleMoveUsage(move, user) {
@@ -193,17 +193,24 @@ export default {
         return false;
       }
 
-      const battleContinues = this.playMove(move, attackerPoke, defenderPoke, isPlayer);
-      console.log(battleContinues);
+      const { moveHit, fainted } = this.playMove(move, attackerPoke, defenderPoke);
 
-      if (defenderPoke.stats.currentHp <= 0) {
-        console.log(`${defenderPoke.name} fainted!`);
-        this.handleFaint(defenderPoke, isPlayer ? "opponent" : "user");
-      } else {
-        // Only switch turns if no faint occurred
-        this.switchTurn();
+      if (!moveHit) {
+        console.log(`${attackerPoke.name}'s move ${move.name} missed.`);
       }
 
+      if (fainted) {
+        console.log(`${defenderPoke.name} fainted!`);
+        const faintHandled = this.handleFaint(defenderPoke, isPlayer ? "opponent" : "user");
+
+        // Skip switching turns if a faint occurs
+        if (faintHandled) {
+          return;
+        }
+      }
+
+      // Only switch turn if no faint occurred
+      this.switchTurn();
       this.saveToLocalStorage();
     },
 
@@ -237,7 +244,6 @@ export default {
     },
 
     handleOpponentTurn() {
-      console.log(this.turn ,'inside handleopponentTurn');
       if (this.turn !== "opponent") return;
 
       const randomMoveIndex = Math.floor(Math.random() * this.oppPoke.moves.length);
@@ -245,18 +251,34 @@ export default {
 
       console.log(`Opponent's ${this.oppPoke.name} is using ${chosenMove.name}`);
 
-      const moveResult = this.playMove(chosenMove, this.oppPoke, this.userPoke, false);
+      const { moveHit, fainted } = this.playMove(chosenMove, this.oppPoke, this.userPoke);
 
-      if (!moveResult) {
+      if (!moveHit) {
         console.log(`Opponent's move ${chosenMove.name} missed!`);
-      } else {
-        console.log(`${this.userPoke.name} now has ${this.userPoke.stats.currentHp} HP left.`);
       }
+
+      if (fainted) {
+        console.log(`${this.userPoke.name} fainted!`);
+        const faintHandled = this.handleFaint(this.userPoke, "user");
+
+        // Skip switching turns if a faint occurs
+        if (faintHandled) {
+          return;
+        }
+      }
+
+      // Switch turn back to the user if no faint occurred
+      this.switchTurn();
+      this.saveToLocalStorage();
     },
 
     switchTurn() {
       this.turn = this.turn === "user" ? "opponent" : "user";
-      if (this.turn === "opponent") this.handleOpponentTurn();
+
+      // If it's the opponent's turn, call the opponent's move automatically
+      if (this.turn === "opponent") {
+        setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
+      }
     },
     // Unified faint handler for both player and opponent Pokémon
     handleFaint(poke, playerType) {
@@ -273,7 +295,15 @@ export default {
         } else if (playerType === "opponent") {
           const nextPoke = this.opponentPokemon.find((p) => p.stats.currentHp > 0);
           if (nextPoke) {
+            // **Correctly switch to the next available Pokémon for the opponent**
             this.oppPoke = nextPoke;
+            console.log(`${this.opponent.name} switched to ${this.oppPoke.name}!`);
+
+            // Automatically continue with the opponent's next turn if it's their turn
+            if (this.turn === "opponent") {
+              setTimeout(() => this.handleOpponentTurn(), 1000); // Add delay for better flow
+            }
+
             this.saveToLocalStorage();
             return true; // Opponent switches Pokémon
           } else {
@@ -283,7 +313,7 @@ export default {
         }
       }
       return true; // Pokémon still in the battle
-    },
+    }
   },
 
   components: {
