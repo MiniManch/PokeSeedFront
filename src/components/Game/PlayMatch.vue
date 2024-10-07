@@ -19,6 +19,9 @@
       @moveUsed="handleMoveUsage"
       v-if="userPoke"
     />
+    <div class="log">
+      <BattleLog :logs="battleLogs" />
+    </div>
   </div>
   <ChangePoke
     :selectedPoke="userPoke"
@@ -26,6 +29,7 @@
     v-if="userPoke && userData.team && showChngPoke"
     @changePokeTo="changePlayingPokemon"
   />
+
 </template>
 
 <script>
@@ -35,6 +39,7 @@ import { getTrainerData } from "@/utils/crud";
 import battleBgs from "@/assets/data/battleBgs.json";
 import attackTypes from "@/assets/data/typeOfAttks.json";
 import typeEffectiveness from "@/assets/data/effectiveType.json";
+import BattleLog from "./BattleLog.vue";
 
 import PlayerPanel from "./PlayerPanel.vue";
 import ChangePoke from "./ChangePoke.vue";
@@ -57,19 +62,12 @@ export default {
       showChngPoke: false,
       userPokemon: gameState ? gameState.userPokemon : null,
       opponentPokemon: gameState ? gameState.oppPokemon : null,
-      turn: Math.random() < 0.5 ? "user" : "opponent", // Randomize the first turn
+      turn: Math.random() < 0.5 ? "user" : "opponent", 
+      battleLogs: [], // Add this to store logs
     };
   },
 
   methods: {
-    // Initialize moves with currentSp if already exists, otherwise use sp value
-    // initializeMoves(pokemon) {
-    //   pokemon.moves.forEach((move) => {
-    //     if (!move.currentSp && move.sp) {
-    //       move.currentSp = move.sp; // Only initialize if currentSp is missing
-    //     }
-    //   });
-    // },
 
     getRandomBattleBg() {
       const randomBg = battleBgs[Math.floor(Math.random() * battleBgs.length)];
@@ -165,14 +163,13 @@ export default {
         const health_after = defendingPoke.stats.currentHp - dmgOfMove;
         defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
 
-        console.log(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
-
+        this.addLog(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
         return {
           moveHit: true,
           fainted: defendingPoke.stats.currentHp === 0
         };
       } else {
-        console.log(`${attackingPoke.name} used ${move.name}, but it missed!`);
+        this.addLog(`${attackingPoke.name} used ${move.name}, but it missed!`);
         return {
           moveHit: false,
           fainted: false
@@ -189,27 +186,23 @@ export default {
       const canBePlayed = moveIndex !== -1 && attackerPoke.moves[moveIndex].currentSp > 0;
 
       if (!canBePlayed) {
-        console.log(`${attackerPoke.name} cannot use ${move.name} due to insufficient SP.`);
+        this.addLog(`${attackerPoke.name} cannot use ${move.name} due to insufficient SP.`);
         return false;
       }
 
       const { moveHit, fainted } = this.playMove(move, attackerPoke, defenderPoke);
 
       if (!moveHit) {
-        console.log(`${attackerPoke.name}'s move ${move.name} missed.`);
+        this.addLog(`${attackerPoke.name}'s move ${move.name} missed.`);
       }
 
       if (fainted) {
-        console.log(`${defenderPoke.name} fainted!`);
+        this.addLog(`${defenderPoke.name} fainted!`);
         const faintHandled = this.handleFaint(defenderPoke, isPlayer ? "opponent" : "user");
 
-        // Skip switching turns if a faint occurs
-        if (faintHandled) {
-          return;
-        }
+        if (faintHandled) return;
       }
 
-      // Only switch turn if no faint occurred
       this.switchTurn();
       this.saveToLocalStorage();
     },
@@ -249,25 +242,21 @@ export default {
       const randomMoveIndex = Math.floor(Math.random() * this.oppPoke.moves.length);
       const chosenMove = this.oppPoke.moves[randomMoveIndex];
 
-      console.log(`Opponent's ${this.oppPoke.name} is using ${chosenMove.name}`);
+      this.addLog(`Opponent's ${this.oppPoke.name} is using ${chosenMove.name}`);
 
       const { moveHit, fainted } = this.playMove(chosenMove, this.oppPoke, this.userPoke);
 
       if (!moveHit) {
-        console.log(`Opponent's move ${chosenMove.name} missed!`);
+        this.addLog(`Opponent's move ${chosenMove.name} missed!`);
       }
 
       if (fainted) {
-        console.log(`${this.userPoke.name} fainted!`);
+        this.addLog(`${this.userPoke.name} fainted!`);
         const faintHandled = this.handleFaint(this.userPoke, "user");
 
-        // Skip switching turns if a faint occurs
-        if (faintHandled) {
-          return;
-        }
+        if (faintHandled) return;
       }
 
-      // Switch turn back to the user if no faint occurred
       this.switchTurn();
       this.saveToLocalStorage();
     },
@@ -313,12 +302,17 @@ export default {
         }
       }
       return true; // Pokémon still in the battle
+    },
+    addLog(message) {
+      this.battleLogs = [message]; // Replacing the log with the latest message
     }
+
   },
 
   components: {
     PlayerPanel,
     ChangePoke,
+    BattleLog
   },
 
   async mounted() {
@@ -329,6 +323,13 @@ export default {
     if (!this.oppPoke || !this.opponent) {
       await this.findGame();
     } 
+
+    // if opponent turn we play his moove
+    console.log(this.turn === "opponent")
+    if (this.turn === "opponent") {
+      console.log('heyo')
+      setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
+    }
   },
 };
 </script>
@@ -346,5 +347,10 @@ export default {
 
 .Poke {
   height: 50vh;
+}
+.log{
+  position: absolute;
+  bottom:10vh;
+  left:10vh;
 }
 </style>
