@@ -40,7 +40,7 @@ export default {
         async loadPokemonData() {
             const data = [];
             for (const poke of this.pokemon) {
-                const pokeData = await fetchPokemonByName(poke);
+                const pokeData = await fetchPokemonByName(poke.name);
                 pokeData.isHovered = false; // Add a flag for hover state
                 data.push(pokeData);
             }

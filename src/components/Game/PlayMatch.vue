@@ -62,7 +62,7 @@ export default {
       showChngPoke: false,
       userPokemon: gameState ? gameState.userPokemon : null,
       opponentPokemon: gameState ? gameState.oppPokemon : null,
-      turn: Math.random() < 0.5 ? "user" : "opponent", 
+      turn: Math.random() < 0.5 ? "user" : "opponent",
       battleLogs: [], // Add this to store logs
     };
   },
@@ -82,7 +82,8 @@ export default {
         oppPoke: this.oppPoke,
         oppPokeHealth: this.oppPoke.stats.currentHp,
         oppPokemon: this.opponentPokemon,
-        opponent: this.opponent, // Save the opponent object
+        opponent: this.opponent,
+        turn: this.turn,
       };
       localStorage.setItem("PokeSeed_battleState", JSON.stringify(gameState));
     },
@@ -100,9 +101,7 @@ export default {
         this.opponentPokemon = gameState.oppPokemon;
         this.oppPoke = gameState.oppPoke;
         this.oppPoke.stats.currentHp = gameState.oppPokeHealth;
-
-        // this.userPokemon.forEach((poke) => this.initializeMoves(poke));
-        // this.initializeMoves(this.oppPoke);
+        this.turn = gameState.turn || this.turn;
 
         return true;
       }
@@ -153,11 +152,13 @@ export default {
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
       const capitalizedType = this.capitalizeFirstLetter(move.type);
       const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
-      const dmgOfMove =
+      const baseDamage =
         (move.dmg / 100) *
         (specialOrNormalAttack === "Normal"
           ? attackingPoke.stats.str
           : attackingPoke.stats.spAtk);
+
+      const dmgOfMove = Math.round(this.calculateDamage(baseDamage,move.type,defendingPoke.type) * 100) / 100;
 
       if (chanceOfMove) {
         const health_after = defendingPoke.stats.currentHp - dmgOfMove;
@@ -232,6 +233,9 @@ export default {
 
       this.userPoke = poke;
       this.showChngPoke = false;
+      this.switchTurn();
+      this.switchTurn();
+
 
       this.saveToLocalStorage();
     },
@@ -268,23 +272,26 @@ export default {
       if (this.turn === "opponent") {
         setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
       }
+      console.log('turn changed to',this.turn)
     },
-    // Unified faint handler for both player and opponent Pokémon
+
     handleFaint(poke, playerType) {
       if (poke.stats.currentHp <= 0) {
         if (playerType === "user") {
           const nextPoke = this.userPokemon.find((p) => p.stats.currentHp > 0);
           if (nextPoke) {
             this.showChngPoke = true;
-            return true; // Player can switch Pokémon
+            return true; 
           } else {
             alert("You lost the battle.");
-            return false; // All player Pokémon fainted
+            return false; 
           }
         } else if (playerType === "opponent") {
           const nextPoke = this.opponentPokemon.find((p) => p.stats.currentHp > 0);
+          console.log('next poke',nextPoke)
+          console.log('all poke',this.opponentPokemon.filter((p)=>p.stats.currentHp != 0))
+
           if (nextPoke) {
-            // **Correctly switch to the next available Pokémon for the opponent**
             this.oppPoke = nextPoke;
             console.log(`${this.opponent.name} switched to ${this.oppPoke.name}!`);
 

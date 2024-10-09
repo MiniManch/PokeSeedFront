@@ -29,7 +29,13 @@
     <div class="movesList" v-if="isPlayer && showMoves">
       <ul class="framed buttons compact move-options">
         <li v-for="move in poke.moves" :key="move.name">
-          <button class="button" @click="useMove(move)">{{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})</button>
+          <button
+            class="button"
+            @click="useMove(move)"
+            :disabled="!isUserTurn"
+          >
+          {{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})
+        </button>
         </li>
       </ul>
       <button class="button back" @click="closeFightMenu">Back</button>
@@ -70,6 +76,9 @@ export default {
   computed: {
     pokeSprite() {
       return this.isPlayer ? this.poke.backSprite : this.poke.frontSprite;
+    },
+    isUserTurn(){
+      return this.turn === 'user';
     }
   },
   methods: {
