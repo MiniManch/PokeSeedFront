@@ -149,7 +149,10 @@ export default {
     },
 
     playMove(move, attackingPoke, defendingPoke) {
+      move.currentSp = move.currentSp - 1;
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
+      const chanceOfEffect = Math.floor(Math.random() * 101) < move.effect_acc;
+
       const capitalizedType = this.capitalizeFirstLetter(move.type);
       const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
       const baseDamage =
@@ -165,6 +168,10 @@ export default {
         defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
 
         this.addLog(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
+        if (chanceOfEffect){
+          const moveEffect = move.effect;
+          console.log(moveEffect)
+        }
         return {
           moveHit: true,
           fainted: defendingPoke.stats.currentHp === 0
@@ -287,7 +294,7 @@ export default {
             return false; 
           }
         } else if (playerType === "opponent") {
-          const nextPoke = this.opponentPokemon.find((p) => p.stats.currentHp > 0);
+          const nextPoke = this.opponentPokemon.find((p) => p.stats.currentHp > 0 && p.name != poke.name);
           console.log('next poke',nextPoke)
           console.log('all poke',this.opponentPokemon.filter((p)=>p.stats.currentHp != 0))
 
@@ -331,10 +338,7 @@ export default {
       await this.findGame();
     } 
 
-    // if opponent turn we play his moove
-    console.log(this.turn === "opponent")
     if (this.turn === "opponent") {
-      console.log('heyo')
       setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
     }
   },

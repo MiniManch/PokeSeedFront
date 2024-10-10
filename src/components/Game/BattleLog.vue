@@ -1,7 +1,6 @@
 <template>
     <div class="battle-log framed">
         <p v-for="(log, index) in logs" :key="index">{{ log }}</p>
-   
     </div>
   </template>
   
@@ -25,6 +24,9 @@
     width: 30vw;
     height:20vh;
     font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   </style>
   

@@ -32,7 +32,7 @@
           <button
             class="button"
             @click="useMove(move)"
-            :disabled="!isUserTurn"
+            :disabled="!turn"
           >
           {{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})
         </button>
@@ -77,9 +77,6 @@ export default {
     pokeSprite() {
       return this.isPlayer ? this.poke.backSprite : this.poke.frontSprite;
     },
-    isUserTurn(){
-      return this.turn === 'user';
-    }
   },
   methods: {
     openFightMenu() {
@@ -95,6 +92,9 @@ export default {
       this.$emit('moveUsed',move,'user');
     } 
   },
+  mounted(){
+    console.log('turn',this.turn);
+  }
 };
 </script>
 
