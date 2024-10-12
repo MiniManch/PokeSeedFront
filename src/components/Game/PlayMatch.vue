@@ -63,7 +63,10 @@ export default {
       userPokemon: gameState ? gameState.userPokemon : null,
       opponentPokemon: gameState ? gameState.oppPokemon : null,
       turn: Math.random() < 0.5 ? "user" : "opponent",
-      battleLogs: [], // Add this to store logs
+      effectTrackers: [],
+      battleLogs: [],
+      logQueue: [], 
+      processingLogs: false
     };
   },
 
@@ -84,6 +87,7 @@ export default {
         oppPokemon: this.opponentPokemon,
         opponent: this.opponent,
         turn: this.turn,
+        effectTrackers: this.effectTrackers,
       };
       localStorage.setItem("PokeSeed_battleState", JSON.stringify(gameState));
     },
@@ -102,6 +106,7 @@ export default {
         this.oppPoke = gameState.oppPoke;
         this.oppPoke.stats.currentHp = gameState.oppPokeHealth;
         this.turn = gameState.turn || this.turn;
+        this.effectTrackers = gameState.effectTrackers || [];
 
         return true;
       }
@@ -149,9 +154,9 @@ export default {
     },
 
     playMove(move, attackingPoke, defendingPoke) {
+      this.processEffectTrackers()
       move.currentSp = move.currentSp - 1;
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
-      const chanceOfEffect = Math.floor(Math.random() * 101) < move.effect_acc;
 
       const capitalizedType = this.capitalizeFirstLetter(move.type);
       const specialOrNormalAttack = attackTypes[capitalizedType]?.attack_type;
@@ -168,10 +173,9 @@ export default {
         defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
 
         this.addLog(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
-        if (chanceOfEffect){
-          const moveEffect = move.effect;
-          console.log(moveEffect)
-        }
+        
+        this.applyMoveEffect(move,attackingPoke,defendingPoke);
+
         return {
           moveHit: true,
           fainted: defendingPoke.stats.currentHp === 0
@@ -247,6 +251,90 @@ export default {
       this.saveToLocalStorage();
     },
 
+    applyMoveEffect(move, attacker, defender) {
+      const effectChance = Math.floor(Math.random() * 101) < move.effect_acc;
+      if (!move.effect || move.effect_acc === 0 || !effectChance) return;
+
+      const effectValue = move.dmg * (move.effect_percent / 100); // Calculate effect value
+
+      if (effectChance <= move.effect_acc) {
+        switch (move.effect) {
+          case 'attack down':
+            defender.stats.attack -= effectValue;
+            this.addEffectTracker('attack down', defender, effectValue, 1);
+            this.addLog(`${attacker.name} reduced ${defender.name}'s attack by ${effectValue}`);
+            break;
+
+          case 'defense up':
+            attacker.stats.defense += effectValue;
+            this.addEffectTracker('defense up', attacker, effectValue, 1);
+            this.addLog(`${attacker.name} increased their defense by ${effectValue}`);
+            break;
+
+          case 'defense down':
+            defender.stats.defense -= effectValue;
+            this.addEffectTracker('defense down', defender, effectValue, 1);
+            this.addLog(`${attacker.name} reduced ${defender.name}'s defense by ${effectValue}`);
+            break;
+
+          case 'health up':
+            attacker.stats.currentHp = Math.min(attacker.stats.hp, attacker.stats.currentHp + effectValue);
+            this.addLog(`${attacker.name} restored ${effectValue} HP`);
+            break;
+
+          case 'skip':
+            this.addEffectTracker('skip', defender, null, 1); // No need to revert skip
+            this.addLog(`${attacker.name} skipped ${defender.name}'s next turn`);
+            break;
+
+          case 'melt':
+            this.addEffectTracker('melt', defender, effectValue, move.melt_turns);
+            this.addLog(`${attacker.name} inflicted melt on ${defender.name}, reducing their health for ${move.melt_turns} turns`);
+            break;
+        }
+      }
+    },
+
+    addEffectTracker(effect, target, value, duration) {
+      this.effectTrackers.push({ effect, target, value, duration });
+    },
+
+    processEffectTrackers() {
+      this.effectTrackers = this.effectTrackers.filter((tracker) => {
+        if (tracker.duration > 1) {
+          tracker.duration -= 1;
+          return true; // Keep this effect active
+        } else {
+          this.undoEffect(tracker); // Undo the effect after its duration expires
+          return false; // Remove this effect from the tracker
+        }
+      });
+    },
+
+    undoEffect(tracker) {
+      switch (tracker.effect) {
+        case 'attack down':
+          tracker.target.stats.attack += tracker.value;
+          this.addLog(`${tracker.target.name}'s attack returned to normal`);
+          break;
+
+        case 'defense up':
+          tracker.target.stats.defense -= tracker.value;
+          this.addLog(`${tracker.target.name}'s defense returned to normal`);
+          break;
+
+        case 'defense down':
+          tracker.target.stats.defense += tracker.value;
+          this.addLog(`${tracker.target.name}'s defense returned to normal`);
+          break;
+
+        case 'melt':
+          tracker.target.stats.currentHp -= tracker.value;
+          this.addLog(`${tracker.target.name} took ${tracker.value} melt damage`);
+          break;
+      }
+  },
+
     handleOpponentTurn() {
       if (this.turn !== "opponent") return;
 
@@ -317,9 +405,41 @@ export default {
       }
       return true; // Pokémon still in the battle
     },
+    
     addLog(message) {
-      this.battleLogs = [message]; // Replacing the log with the latest message
-    }
+      // Push the log message to the queue
+      this.logQueue.push(message);
+
+      // If not already processing logs, start
+      if (!this.processingLogs) {
+        this.processLogs();
+      }
+    },
+
+    processLogs() {
+      const turn = this.turn;
+      this.turn = null;
+
+      if (this.logQueue.length === 0) {
+        this.processingLogs = false;
+        return;  // No logs to process
+      }
+
+      this.processingLogs = true;
+
+      // Display the first message in the queue
+      const nextLog = this.logQueue.shift();
+      this.battleLogs = [nextLog];
+
+      // After 5 seconds, show the next log
+      setTimeout(() => {
+        this.processLogs();
+      }, 2000);  // Adjust delay as needed
+
+      if( this.battleLogs.length == 1){
+        this.turn = turn;
+      }
+    },
 
   },
 
