@@ -14,7 +14,7 @@
       :poke="userPoke"
       :currentHp="userPoke.stats.currentHp"
       :isPlayer="true"
-      :turn="true"
+      :turn="turn === 'user' && !processingLogs"
       @displayChngPoke="showChngPoke = true"
       @moveUsed="handleMoveUsage"
       v-if="userPoke"
@@ -173,20 +173,18 @@ export default {
         defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
 
         this.addLog(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
-        
         this.applyMoveEffect(move,attackingPoke,defendingPoke);
+        this.processEffectTrackers();
 
         return {
           moveHit: true,
           fainted: defendingPoke.stats.currentHp === 0
         };
-      } else {
-        this.addLog(`${attackingPoke.name} used ${move.name}, but it missed!`);
-        return {
-          moveHit: false,
-          fainted: false
-        };
       }
+      return {
+        moveHit: false,
+        fainted: false
+      };
     },
 
     handleMoveUsage(move, user) {
@@ -255,7 +253,7 @@ export default {
       const effectChance = Math.floor(Math.random() * 101) < move.effect_acc;
       if (!move.effect || move.effect_acc === 0 || !effectChance) return;
 
-      const effectValue = move.dmg * (move.effect_percent / 100); // Calculate effect value
+      const effectValue = Math.round(move.dmg * (move.effect_percent / 100)*10)/10; // Calculate effect value
 
       if (effectChance <= move.effect_acc) {
         switch (move.effect) {
@@ -417,9 +415,6 @@ export default {
     },
 
     processLogs() {
-      const turn = this.turn;
-      this.turn = null;
-
       if (this.logQueue.length === 0) {
         this.processingLogs = false;
         return;  // No logs to process
@@ -435,10 +430,6 @@ export default {
       setTimeout(() => {
         this.processLogs();
       }, 2000);  // Adjust delay as needed
-
-      if( this.battleLogs.length == 1){
-        this.turn = turn;
-      }
     },
 
   },
