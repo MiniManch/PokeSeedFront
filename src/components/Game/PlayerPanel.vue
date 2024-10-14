@@ -63,7 +63,7 @@ export default {
     turn: {
       type: Boolean,
       default: false
-    }
+    },
   },
   data() {
     return {

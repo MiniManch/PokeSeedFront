@@ -6,7 +6,8 @@
       :currentHp="oppPoke.stats.currentHp"
       :isPlayer="false"
       :turn="false"
-      v-if="oppPoke"
+      :isFainted="isOppFainted"
+      v-if="oppPoke "
     />
 
     <!-- Player Panel -->
@@ -15,6 +16,7 @@
       :currentHp="userPoke.stats.currentHp"
       :isPlayer="true"
       :turn="turn === 'user' && !processingLogs"
+      :isFainted="isUserFainted"
       @displayChngPoke="showChngPoke = true"
       @moveUsed="handleMoveUsage"
       v-if="userPoke"
@@ -60,6 +62,8 @@ export default {
       oppPokeHealth: gameState ? gameState.oppPokeHealth : null,
       userPokeHealth: gameState ? gameState.userPokeHealth : null,
       showChngPoke: false,
+      isUserFainted:false,
+      isOppFainted:false,
       userPokemon: gameState ? gameState.userPokemon : null,
       opponentPokemon: gameState ? gameState.oppPokemon : null,
       turn: Math.random() < 0.5 ? "user" : "opponent",
@@ -153,8 +157,9 @@ export default {
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
 
-    playMove(move, attackingPoke, defendingPoke) {
+    playMove(move, attackingPoke, defendingPoke,attackingPlayer) {
       this.processEffectTrackers()
+      const defendingTeam = PlayerType === 'user' ? this.opponentPokemon : this.userPokemon;
       move.currentSp = move.currentSp - 1;
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
 
@@ -171,6 +176,9 @@ export default {
       if (chanceOfMove) {
         const health_after = defendingPoke.stats.currentHp - dmgOfMove;
         defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
+        team.filter((p)=>)
+
+
 
         this.addLog(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
         this.applyMoveEffect(move,attackingPoke,defendingPoke);
@@ -200,7 +208,7 @@ export default {
         return false;
       }
 
-      const { moveHit, fainted } = this.playMove(move, attackerPoke, defenderPoke);
+      const { moveHit, fainted } = this.playMove(move, attackerPoke, defenderPoke,'user');
 
       if (!moveHit) {
         this.addLog(`${attackerPoke.name}'s move ${move.name} missed.`);
@@ -244,6 +252,7 @@ export default {
       this.showChngPoke = false;
       this.switchTurn();
       this.switchTurn();
+      this.addLog(`${this.userData.trainer} switched to ${this.userPoke.name}!`);
 
 
       this.saveToLocalStorage();
@@ -331,7 +340,7 @@ export default {
           this.addLog(`${tracker.target.name} took ${tracker.value} melt damage`);
           break;
       }
-  },
+    },
 
     handleOpponentTurn() {
       if (this.turn !== "opponent") return;
@@ -341,7 +350,7 @@ export default {
 
       this.addLog(`Opponent's ${this.oppPoke.name} is using ${chosenMove.name}`);
 
-      const { moveHit, fainted } = this.playMove(chosenMove, this.oppPoke, this.userPoke);
+      const { moveHit, fainted } = this.playMove(chosenMove, this.oppPoke, this.userPoke,'opponent');
 
       if (!moveHit) {
         this.addLog(`Opponent's move ${chosenMove.name} missed!`);
@@ -374,6 +383,7 @@ export default {
           const nextPoke = this.userPokemon.find((p) => p.stats.currentHp > 0);
           if (nextPoke) {
             this.showChngPoke = true;
+
             return true; 
           } else {
             alert("You lost the battle.");
@@ -382,11 +392,12 @@ export default {
         } else if (playerType === "opponent") {
           const nextPoke = this.opponentPokemon.find((p) => p.stats.currentHp > 0 && p.name != poke.name);
           console.log('next poke',nextPoke)
-          console.log('all poke',this.opponentPokemon.filter((p)=>p.stats.currentHp != 0))
+          console.log('filtered pokemon',this.opponentPokemon.filter((p)=>p.stats.currentHp != 0))
+          console.log('all pokemon',this.opponentPokemon)
 
           if (nextPoke) {
             this.oppPoke = nextPoke;
-            console.log(`${this.opponent.name} switched to ${this.oppPoke.name}!`);
+            this.addLog(`${this.opponent.name} switched to ${this.oppPoke.name}!`);
 
             // Automatically continue with the opponent's next turn if it's their turn
             if (this.turn === "opponent") {
@@ -401,6 +412,7 @@ export default {
           }
         }
       }
+      this.saveToLocalStorage();
       return true; // Pokémon still in the battle
     },
     
