@@ -2176,7 +2176,7 @@ body {
   font-family: "Pokemon GB";
   font-smooth: never;
   -webkit-font-smoothing: none;
-  min-width: 320px;
+  /* min-width: 320px; */
   padding: 4em;
   background: #F8F3F8;
   /* color: #181010; */

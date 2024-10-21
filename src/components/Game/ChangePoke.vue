@@ -2,7 +2,7 @@
     <div class="changePoke">
 
         <div class="selectedPoke">
-            <img :src="selectedPoke.pokeDexImg" @error="useFrontSprite(selectedPoke)" alt="">
+            <img class="pokemonProfileImage" :src="selectedPoke.pokeDexImg" @error="useFrontSprite(selectedPoke)" alt="">
             <div class="pokeStats">
                 <p>{{selectedPoke.name}}</p>
                 <div class="healthBar">
@@ -17,7 +17,7 @@
         <div class="availablePoke">
             <div :class="['poke',currentPokemon === poke ? justifyStart : null]" class="poke" v-for="poke in relevantPoke" :key="poke.name">
                 <div class="imgAndStats">
-                    <img :src="poke.pokeDexImg" @error="useFrontSprite(poke)" alt="">
+                    <img class="pokemonProfileImage" :src="poke.pokeDexImg" @error="useFrontSprite(poke)" alt="">
 
                     <div class="pokeStats" v-if="currentPokemon !== poke">
                         <p>{{poke.name}}</p>
@@ -49,6 +49,7 @@
         </div>
 
     </div>
+    <button class="back" @click="closeWindow"><img src="../../../public/Images/back/back-50.png" alt="" id="backButtonImage"></button>
 </template>
 
 <script>
@@ -104,6 +105,9 @@ export default {
         useFrontSprite(poke) {
             // Fallback to frontSprite when pokeDexImg fails
             poke.pokeDexImg = poke.frontSprite;
+        },
+        closeWindow(){
+            this.$emit("closeChangePoke");
         }
     },
     components: {
@@ -213,7 +217,17 @@ export default {
     width: 100%;
     gap: 3vw;
   }
-  img{
+  .back{
+    position: absolute;
+    top:5vh;
+    right:10vw;
+    z-index: 4;
+  }
+
+  .back > img{
+    width:5vw;
+  }
+  .pokemonProfileImage{
     width:10vw;
     height:20vh;
   }

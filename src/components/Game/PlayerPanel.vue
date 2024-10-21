@@ -17,28 +17,28 @@
     />
 
     <!-- Player's Action Menu -->
-    <div class="moves" v-if="isPlayer && !showMoves">
-      <ul class="framed buttons compact options">
-        <li><button class="button" @click="openFightMenu">Fight</button></li>
-        <li><button class="pokemon button" @click="openChngPoke">PKMN</button></li>
-        <li><button class="button">Item</button></li>
+      <ul class="framed buttons compact options" id="mainMenu" v-if="isPlayer && !showMoves" >
+        <li><button class="" @click="openFightMenu">Fight</button></li>
+        <li><button class="" @click="openChngPoke">Pokemon</button></li>
+        <li><button class="">Item</button></li>
       </ul>
-    </div>
 
     <!-- Moves Menu -->
     <div class="movesList" v-if="isPlayer && showMoves">
       <ul class="framed buttons compact move-options">
-        <li v-for="move in poke.moves" :key="move.name">
-          <button
-            class="button"
-            @click="useMove(move)"
-            :disabled="!turn"
-          >
-          {{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})
-        </button>
-        </li>
+        <div class="movesContainer">
+          <li v-for="move in poke.moves" :key="move.name">
+            <button
+              class="button"
+              @click="useMove(move)"
+              :disabled="!turn"
+            >
+            {{ move.name }} <br> (PP: {{ move.currentSp }}/{{ move.sp }})
+          </button>
+          </li>
+        </div>
+      <button class="back" @click="closeFightMenu"><img src="../../../public/Images/back/back-50.png" alt="" id="backButtonImage"></button>
       </ul>
-      <button class="button back" @click="closeFightMenu">Back</button>
     </div>
   </div>
 </template>
@@ -133,25 +133,54 @@ export default {
   right: 10vw;
 }
 
+.options{
+  width: 50%;
+}
+
 .options, .move-options {
+  display: flex;
+  flex-wrap: wrap;
   position: absolute;
   right: 0;
   bottom: 10vh;
   height: 20vh;
-  margin-right: 1vw;
   width: 50%;
+  margin-right: 1vw;
   font-size: 1.5em;
   background: white;
 }
 
-.movesList .button {
+.movesContainer{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-left: 3vw;
+}
+
+#mainMenu {
+  display: flex;
+  align-items: center;
+  font-size: 2em;
+}
+
+#mainMenu > li{
+  margin-left: auto;
+  width:5vw;
+}
+
+
+.movesList  {
   display: block;
   width: 100%;
   margin: 10px 0;
 }
 
 .back {
-  margin-top: 15px;
   width: auto;
+  justify-self: flex-start;
+}
+
+.buttons{
+  border-top:none;
 }
 </style>

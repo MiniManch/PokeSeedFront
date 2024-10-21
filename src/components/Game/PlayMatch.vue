@@ -30,6 +30,7 @@
     :pokemon="userPokemon"
     v-if="userPoke && userData.team && showChngPoke"
     @changePokeTo="changePlayingPokemon"
+    @closeChangePoke="closeChangePoke"
   />
 
 </template>
@@ -159,7 +160,7 @@ export default {
 
     playMove(move, attackingPoke, defendingPoke,attackingPlayer) {
       this.processEffectTrackers()
-      const defendingTeam = PlayerType === 'user' ? this.opponentPokemon : this.userPokemon;
+      const defendingTeam = attackingPlayer === 'user' ? this.opponentPokemon : this.userPokemon;
       move.currentSp = move.currentSp - 1;
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
 
@@ -169,17 +170,16 @@ export default {
         (move.dmg / 100) *
         (specialOrNormalAttack === "Normal"
           ? attackingPoke.stats.str
-          : attackingPoke.stats.spAtk);
+          : attackingPoke.stats.spAtk) - (defendingPoke.stats.def / 10);
 
       const dmgOfMove = Math.round(this.calculateDamage(baseDamage,move.type,defendingPoke.type) * 100) / 100;
 
       if (chanceOfMove) {
         const health_after = defendingPoke.stats.currentHp - dmgOfMove;
         defendingPoke.stats.currentHp = health_after > 0 ? health_after : 0;
-        team.filter((p)=>)
-
-
-
+        let pokeFromTeam = defendingTeam.filter((p) => p.name === defendingPoke.name)[0];
+        pokeFromTeam.stats.currentHp = health_after > 0 ? health_after : 0;
+        
         this.addLog(`${attackingPoke.name} used ${move.name} and dealt ${dmgOfMove} damage!`);
         this.applyMoveEffect(move,attackingPoke,defendingPoke);
         this.processEffectTrackers();
@@ -374,7 +374,6 @@ export default {
       if (this.turn === "opponent") {
         setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
       }
-      console.log('turn changed to',this.turn)
     },
 
     handleFaint(poke, playerType) {
@@ -391,9 +390,6 @@ export default {
           }
         } else if (playerType === "opponent") {
           const nextPoke = this.opponentPokemon.find((p) => p.stats.currentHp > 0 && p.name != poke.name);
-          console.log('next poke',nextPoke)
-          console.log('filtered pokemon',this.opponentPokemon.filter((p)=>p.stats.currentHp != 0))
-          console.log('all pokemon',this.opponentPokemon)
 
           if (nextPoke) {
             this.oppPoke = nextPoke;
@@ -443,6 +439,9 @@ export default {
         this.processLogs();
       }, 2000);  // Adjust delay as needed
     },
+    closeChangePoke(){
+      this.showChngPoke = false;
+    }
 
   },
 
@@ -454,16 +453,21 @@ export default {
 
   async mounted() {
     this.battleBg = this.getRandomBattleBg();
-    await getUserData(this);
-
-    // If no saved game state is found, proceed with loading the game
-    if (!this.oppPoke || !this.opponent) {
-      await this.findGame();
-    } 
-
-    if (this.turn === "opponent") {
-      setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
+    if (!await getUserData(this)){
+      this.$router.push('/login');
     }
+    else{
+    // If no saved game state is found, proceed with loading the game
+      if (!this.oppPoke || !this.opponent) {
+        await this.findGame();
+      } 
+
+      if (this.turn === "opponent") {
+        setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
+      }
+    }
+
+   
   },
 };
 </script>
