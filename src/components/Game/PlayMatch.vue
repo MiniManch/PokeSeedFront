@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { getUserData } from "@/utils/auth";
 import { getTrainerData } from "@/utils/crud";
 
@@ -56,7 +57,7 @@ export default {
       userData: JSON.parse(localStorage.getItem("PokeSeed_userData")),
       tournamentTree: JSON.parse(localStorage.getItem("PokeSeed_tournamentTree")),
       opponent: gameState ? gameState.opponent : null,
-      match: null,
+      match: gameState ? gameState.match : null,
       oppPoke: gameState ? gameState.oppPoke : null,
       userPoke: gameState ? gameState.userPoke : null,
       battleBg: null,
@@ -93,6 +94,7 @@ export default {
         opponent: this.opponent,
         turn: this.turn,
         effectTrackers: this.effectTrackers,
+        match:this.match
       };
       localStorage.setItem("PokeSeed_battleState", JSON.stringify(gameState));
     },
@@ -112,7 +114,7 @@ export default {
         this.oppPoke.stats.currentHp = gameState.oppPokeHealth;
         this.turn = gameState.turn || this.turn;
         this.effectTrackers = gameState.effectTrackers || [];
-
+        this.match = gameState.match || null;
         return true;
       }
       return false;
@@ -142,11 +144,9 @@ export default {
               if (!obj.stats.currentHp) {
                 obj.stats.currentHp = obj.stats.hp;
               }
-              // this.initializeMoves(obj);
               return obj;
             });
             this.userPoke = this.userPokemon[0];
-            // this.initializeMoves(this.oppPoke);
           }
         }
 
@@ -404,6 +404,7 @@ export default {
             return true; // Opponent switches Pokémon
           } else {
             alert("You won the battle!");
+            this.submitMatchResult(this.userData.trainer,this.opponent.name)
             return false; // All opponent Pokémon fainted
           }
         }
@@ -441,8 +442,28 @@ export default {
     },
     closeChangePoke(){
       this.showChngPoke = false;
-    }
+    },
+    async submitMatchResult(winnerName,loserName) {
+      console.log('submitted',this.match)
+      try {
+        const result = await axios.post(`${process.env.VUE_APP_API_URL}/api/tournaments/update/match`, {
+          tournamentId: this.tournamentTree._id,
+          matchNumber: this.match._id,
+          winnerName: winnerName,
+          loserName: loserName
+        });
 
+        if (result.status === 200) {
+          // Handle success, show a message or update UI
+          console.log('Match result submitted successfully:', result.data);
+          this.$emit('matchUpdated', result.data.match); // Emit event for parent component if needed
+        }
+      } catch (error) {
+        // Handle error, show an error message to the user
+        console.error('Error submitting match result:', error);
+        alert('There was an error submitting the match result.');
+      }
+    }
   },
 
   components: {
@@ -453,6 +474,7 @@ export default {
 
   async mounted() {
     this.battleBg = this.getRandomBattleBg();
+    console.log('mounted:',this.match)
     if (!await getUserData(this)){
       this.$router.push('/login');
     }
@@ -466,8 +488,6 @@ export default {
         setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow
       }
     }
-
-   
   },
 };
 </script>

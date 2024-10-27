@@ -1,4 +1,5 @@
 <template>
+  <button @click="createTournament">Create New Tournament</button>
   <div class="bracket" v-if="tournament && userData">
     <div class="round" v-for="(round, index) in rounds" :key="index">
       <div class="match" v-for="match in round" :key="match.matchNumber">
@@ -19,24 +20,23 @@
       </div>
     </div>
   </div>
-  <div v-else>
-    <p>No tournament data available.</p>
-  </div>
+  <LoadingModal :isLoading="showLoadingModal"/>
 </template>
 
 <script>
 import axios from 'axios';
 import { getUserData } from '@/utils/auth';
 import { fetchTrainerDataAndAddToList } from '@/utils/crud'; 
+import LoadingModal from '../General/LoadingModal.vue';
 
 export default {
   data() {
     return {
-      // tournament: JSON.parse(localStorage.getItem('PokeSeed_tournamentTree')) || null,
-      tournament:  null,
+      tournament: JSON.parse(localStorage.getItem('PokeSeed_tournamentTree')) || null,
       userData: null,
-      trainerData: [], // Store trainer data as an array
+      trainerData: [], 
       error: null,
+      showLoadingModal:true,
     };
   },
   computed: {
@@ -62,11 +62,9 @@ export default {
   methods: {
     async fetchTrainerDataForTournament() {
       for (const match of this.tournament.matches) {
-        // Fetch data for both players in each match
         for (const player of match.players) {
           const existingTrainer = this.trainerData.find((trainer) => trainer.name === player);
           if (!existingTrainer) {
-            // Fetch only if not already fetched
             await fetchTrainerDataAndAddToList(this, player);
           }
         }
@@ -95,6 +93,7 @@ export default {
     },
   },
   async mounted() {
+    setTimeout(()=> {this.showLoadingModal=false}, 5000);
     try {
       await getUserData(this);
 
@@ -109,38 +108,42 @@ export default {
       console.error(this.error);
     }
   },
+  components:{
+    LoadingModal,
+  }
 };
 </script>
-
 <style scoped>
 body {
   color: #fff;
   margin: 2em;
   background-color: #636e72;
-  font-family: helvetica, arial, sans-serif;
-}
-
-br{
-  padding-top: 1vh;
-  padding-bottom: 1vh;
 }
 
 .bracket {
+  position: absolute;
+  top:20%;
   display: flex;
+  flex-direction: column-reverse; /* Stack rounds from bottom to top */
+  align-items: center;
 }
 
 .round {
-  flex: 1;
   display: flex;
-  margin-right: 30px;
-  flex-direction: column;
+  flex-direction: row; /* Horizontal alignment of matches in each round */
   justify-content: space-around;
+  width: 100%;
+  margin: 30px 0; /* Space between rounds */
 }
 
 .match {
-  margin: 15px 0;
-  overflow: hidden;
-  border-radius: 5px; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 15px;
+  border-radius: 5px;
+  background-color: #2d3436;
+  padding: 10px;
   min-width: fit-content;
 }
 
@@ -149,6 +152,7 @@ br{
   padding: 10px 8px;
   background-color: #74b9ff;
   min-width: 10vw;
+  text-align: center;
 }
 
 .team:nth-child(odd) {
