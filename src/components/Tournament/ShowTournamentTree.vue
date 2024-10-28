@@ -95,7 +95,9 @@ export default {
   async mounted() {
     setTimeout(()=> {this.showLoadingModal=false}, 5000);
     try {
-      await getUserData(this);
+      if (!await getUserData(this)){
+        this.$router.push('/login')
+      }
 
       if (!this.tournament) {
         await this.createTournament();
