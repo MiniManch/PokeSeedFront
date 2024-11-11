@@ -26,7 +26,7 @@
 <script>
 import axios from 'axios';
 import { getUserData } from '@/utils/auth';
-import { fetchTrainerDataAndAddToList } from '@/utils/crud'; 
+import { fetchTrainerDataAndAddToList,fetchTournamentData } from '@/utils/crud'; 
 import LoadingModal from '../General/LoadingModal.vue';
 
 export default {
@@ -102,6 +102,7 @@ export default {
       if (!this.tournament) {
         await this.createTournament();
       } else {
+        fetchTournamentData(this,this.tournament._id);
         // Fetch trainer data for an existing tournament
         await this.fetchTrainerDataForTournament();
       }

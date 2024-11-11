@@ -167,6 +167,17 @@ export async function fetchAllTrainers(This) {
     }
 }
 
+export async function  fetchTournamentData(This,tournamentId) {
+    try {
+        const response = await axios.get('/api/tournaments', {
+        params: { id: tournamentId } // or { name: this.tournamentName }
+        });
+        This.tournament = response.data;
+    } catch (error) {
+        console.error('Error fetching tournament:', error);
+    }
+}
+
 export async function fetchAllOppTrainers(This) {
     try {
         const response = await fetch(`/api/trainers`);
@@ -180,3 +191,4 @@ export async function fetchAllOppTrainers(This) {
         console.error('Error fetching trainers:', error);
     }
 }
+
