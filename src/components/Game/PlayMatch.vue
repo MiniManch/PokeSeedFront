@@ -122,6 +122,13 @@ export default {
 
     async findGame() {
       const loadedFromLocalStorage = await this.loadFromLocalStorage();
+      const tournamentTree = JSON.parse(localStorage.getItem('PokeSeed_tournamentTree'));
+      const latestGameFromTournamentTree = tournamentTree.matches.map((m)=>m.isHumanPlayerInvolved);
+      console.log(latestGameFromTournamentTree);
+      console.log(JSON.parse(localStorage.getItem('PokeSeed_tournamentTree')))
+
+
+
       if (!loadedFromLocalStorage || !this.opponent) {
         let games = [];
         for (const match of this.tournamentTree.matches) {
@@ -444,7 +451,6 @@ export default {
       this.showChngPoke = false;
     },
     async submitMatchResult(winnerName,loserName) {
-      console.log('submitted',this.match)
       try {
         const result = await axios.post(`${process.env.VUE_APP_API_URL}/api/tournaments/update/match`, {
           tournamentId: this.tournamentTree._id,
@@ -474,15 +480,12 @@ export default {
 
   async mounted() {
     this.battleBg = this.getRandomBattleBg();
-    console.log('mounted:',this.match)
     if (!await getUserData(this)){
       this.$router.push('/login');
     }
     else{
     // If no saved game state is found, proceed with loading the game
-      if (!this.oppPoke || !this.opponent) {
-        await this.findGame();
-      } 
+      await this.findGame();
 
       if (this.turn === "opponent") {
         setTimeout(() => this.handleOpponentTurn(), 1000); // Adding a slight delay for better flow

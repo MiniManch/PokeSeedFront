@@ -69,6 +69,7 @@ export default {
           }
         }
       }
+      console.log(this.tournament)
     },
     getTrainerDataForDisplay(trainerName) {
       return this.trainerData.find((trainer) => trainer.name === trainerName);
@@ -105,6 +106,10 @@ export default {
         fetchTournamentData(this,this.tournament._id);
         // Fetch trainer data for an existing tournament
         await this.fetchTrainerDataForTournament();
+        
+        if (JSON.stringify(this.tournament) != localStorage.getItem('PokeSeed_tournamentTree')){
+          localStorage.setItem('PokeSeed_tournamentTree', JSON.stringify(this.tournament));
+        }
       }
     } catch (error) {
       this.error = 'Error fetching data: ' + error.message;
