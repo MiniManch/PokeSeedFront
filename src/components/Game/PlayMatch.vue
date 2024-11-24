@@ -119,16 +119,15 @@ export default {
       }
       return false;
     },
-
+    
     async findGame() {
       const loadedFromLocalStorage = await this.loadFromLocalStorage();
       const tournamentTree = JSON.parse(localStorage.getItem('PokeSeed_tournamentTree'));
-      const latestGameFromTournamentTree = tournamentTree.matches.map((m)=>m.isHumanPlayerInvolved);
-      console.log(latestGameFromTournamentTree);
-      console.log(JSON.parse(localStorage.getItem('PokeSeed_tournamentTree')))
+      const latestGamesFromTournamentTree = tournamentTree.matches.filter(
+        (m) => m.isHumanPlayerInvolved
+      );
 
-
-
+      console.log(latestGamesFromTournamentTree);
       if (!loadedFromLocalStorage || !this.opponent) {
         let games = [];
         for (const match of this.tournamentTree.matches) {
