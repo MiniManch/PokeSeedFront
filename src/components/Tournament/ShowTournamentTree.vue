@@ -103,7 +103,8 @@ export default {
       if (!this.tournament) {
         await this.createTournament();
       } else {
-        fetchTournamentData(this,this.tournament._id);
+        this.tournament = await fetchTournamentData(this.tournament._id);
+        console.log(this.tournament)
         // Fetch trainer data for an existing tournament
         await this.fetchTrainerDataForTournament();
         

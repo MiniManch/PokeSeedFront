@@ -38,7 +38,7 @@
 <script>
 import axios from 'axios';
 import { getUserData } from "@/utils/auth";
-import { getTrainerData } from "@/utils/crud";
+import { getTrainerData,fetchTournamentData } from "@/utils/crud";
 
 import battleBgs from "@/assets/data/battleBgs.json";
 import attackTypes from "@/assets/data/typeOfAttks.json";
@@ -122,23 +122,16 @@ export default {
     
     async findGame() {
       const loadedFromLocalStorage = await this.loadFromLocalStorage();
-      const tournamentTree = JSON.parse(localStorage.getItem('PokeSeed_tournamentTree'));
-      const latestGamesFromTournamentTree = tournamentTree.matches.filter(
+      const tournamentTree = await fetchTournamentData(this.tournamentTree._id);
+      const lastUserGame = tournamentTree.matches.filter(
         (m) => m.isHumanPlayerInvolved
-      );
+      ).at(-1)
 
-      console.log(latestGamesFromTournamentTree);
-      if (!loadedFromLocalStorage || !this.opponent) {
-        let games = [];
-        for (const match of this.tournamentTree.matches) {
-          if (match.players.includes(this.userData.trainer)) {
-            games.push(match);
-          }
-        }
+      console.log(lastUserGame)
+      console.log(this.match)
 
-        this.match = games.reduce((max, obj) =>
-          obj.matchNumber > max.matchNumber ? obj : max
-        );
+      if (!loadedFromLocalStorage || !this.opponent || this.match._id != lastUserGame._id ) {
+        this.match = lastUserGame;
 
         for (const player of this.match.players) {
           if (player !== this.userData.trainer) {

@@ -167,12 +167,12 @@ export async function fetchAllTrainers(This) {
     }
 }
 
-export async function  fetchTournamentData(This,tournamentId) {
+export async function  fetchTournamentData(tournamentId) {
     try {
         const response = await axios.get('/api/tournaments', {
         params: { id: tournamentId } // or { name: this.tournamentName }
         });
-        This.tournament = response.data;
+        return(response.data)
     } catch (error) {
         console.error('Error fetching tournament:', error);
     }
