@@ -127,8 +127,6 @@ export default {
         (m) => m.isHumanPlayerInvolved
       ).at(-1)
 
-      console.log(lastUserGame)
-      console.log(this.match)
 
       if (!loadedFromLocalStorage || !this.opponent || this.match._id != lastUserGame._id ) {
         this.match = lastUserGame;
@@ -158,7 +156,6 @@ export default {
     },
 
     playMove(move, attackingPoke, defendingPoke,attackingPlayer) {
-      this.processEffectTrackers()
       const defendingTeam = attackingPlayer === 'user' ? this.opponentPokemon : this.userPokemon;
       move.currentSp = move.currentSp - 1;
       const chanceOfMove = Math.floor(Math.random() * 101) < move.acc;
@@ -188,6 +185,7 @@ export default {
           fainted: defendingPoke.stats.currentHp === 0
         };
       }
+      this.processEffectTrackers();
       return {
         moveHit: false,
         fainted: false
